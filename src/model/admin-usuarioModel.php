@@ -10,9 +10,10 @@ class UsuarioModel
         $this->conexion = new Conexion();
         $this->conexion = $this->conexion->connect();
     }
-    public function registrarUsuario($dni, $apellidos_nombres,$correo, $telefono)
+    public function registrarUsuario($dni, $apellidos_nombres, $correo, $telefono, $password)
     {
-        $sql = $this->conexion->query("INSERT INTO usuarios (dni, nombres_apellidos, correo, telefono) VALUES ('$dni','$apellidos_nombres','$correo','$telefono')");
+        $password_secure = password_hash($password, PASSWORD_DEFAULT); // Hash de la contraseña
+        $sql = $this->conexion->query("INSERT INTO usuarios (dni, nombres_apellidos, correo, telefono, password) VALUES ('$dni','$apellidos_nombres','$correo','$telefono', '$password_secure')");
         if ($sql) {
             $sql = $this->conexion->insert_id;
         } else {
@@ -20,6 +21,7 @@ class UsuarioModel
         }
         return $sql;
     }
+    
     public function actualizarUsuario($id, $dni, $nombres_apellidos, $correo, $telefono, $estado)
     {
         $sql = $this->conexion->query("UPDATE usuarios SET dni='$dni',nombres_apellidos='$nombres_apellidos',correo='$correo',telefono='$telefono',estado ='$estado' WHERE id='$id'");
