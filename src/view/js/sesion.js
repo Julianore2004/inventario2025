@@ -35,7 +35,8 @@ async function iniciar_sesion() {
                 method: 'POST',
                 mode: 'cors',
                 cache: 'no-cache',
-                body: formData
+                body: formData,
+                timer: 1500
             });
             location.replace(base_url);
             location.replace(base_url);
