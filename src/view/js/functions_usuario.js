@@ -176,7 +176,7 @@ async function registrar_usuario() {
         return;
     }
     try {
-        // capturamos datos del formulario html
+        
         const datos = new FormData(frmRegistrar);
         datos.append('sesion', session_session);
         datos.append('token', token_token);
