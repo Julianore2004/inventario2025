@@ -462,31 +462,7 @@ try {
             line-height: 1.5;
         }
 
-        .countdown-container {
-            text-align: center;
-            margin: 20px 0;
-        }
-
-        .countdown-title {
-            font-size: 14px;
-            color: #2f855a;
-            margin-bottom: 10px;
-        }
-
-        .countdown {
-            display: flex;
-            justify-content: center;
-            gap: 10px;
-        }
-
-        .countdown-item {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            padding: 8px 12px;
-            border-radius: 5px;
-            font-size: 14px;
-            font-weight: bold;
-        }
+       
 
         .security-badge {
             text-align: center;
@@ -759,14 +735,7 @@ try {
                     </p>
                 </div>
 
-                <!-- Countdown Timer -->
-                <div class="countdown-container">
-                    <div class="countdown-title">Este enlace expirará en:</div>
-                    <div class="countdown">
-                        <div class="countdown-item">24</div>
-                        <div class="countdown-item">horas</div>
-                    </div>
-                </div>
+            
 
                 <!-- CTA Button -->
                 <div class="cta-section">
