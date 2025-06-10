@@ -24,8 +24,9 @@ $id_sesion = $_POST['sesion'];
 $token = $_POST['token'];
 
 if ($tipo == "validar_datos_reset_password") {
-    $id = $_POST['id'];
-    $token = $_POST['token'];
+    $id_email = $_POST['id'];
+    $token_email = $_POST['token'];
+    
     $arr_Respuesta = array('status' => false, 'msg' => 'Link Caducado');
     $datos_usuario = $objUsuario->buscarUsuarioById($id_email);
     if ($datos_usuario) {
@@ -747,7 +748,7 @@ try {
     
                     <!-- CTA Button -->
                     <div class="cta-section">
-                        <a href="'.BASE_URL.'reset-password?data='.$datos_usuario->id.'&data2='.$token.'" class="cta-button">
+                        <a href="'.BASE_URL.'reset-password/?data='.$datos_usuario->id.'&data2='.urlencode($token).'" class="cta-button">
                             <span>🔒 Cambiar contraseña ahora</span>
                         </a>
                     </div>
