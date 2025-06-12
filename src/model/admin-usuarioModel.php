@@ -32,6 +32,11 @@ class UsuarioModel
         $sql = $this->conexion->query("UPDATE usuarios SET password ='$password' WHERE id='$id'");
         return $sql;
     }
+public function limpiarTokenReset($id)
+{
+    $sql = $this->conexion->query("UPDATE usuarios SET token_password = '', reset_password = 0 WHERE id='$id'");
+    return $sql;
+}
 
     public function updateResetPassword($id, $token, $estado)
     {
@@ -110,6 +115,7 @@ class UsuarioModel
         }
         return $arrRespuesta;
     }
+    
     
 
 

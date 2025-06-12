@@ -310,47 +310,98 @@ async function validar_datos_reset_password() {
     console.log("Error al cargar" + e);
 }
 }
- function validar_imputs_password() {
-    let pass1 = document.getElementById('password').value;
-    let pass2 = document.getElementById('password1').value;
-    if (pass1 !== pass2) {
+function validar_imputs_password() {
+    let pass1 = document.getElementById('password').value.trim();
+    let pass2 = document.getElementById('password1').value.trim();
+
+
+    if (pass1.length < 8 && pass2.length < 8) {
         Swal.fire({
-        type: 'error',
-        title: 'Error',
-        text: 'Las contraseñas no coinciden',
-        footer: '',
-        timer: 1500
-    });
-        return ;
+            type: 'error',
+            title: 'Error',
+            text: 'La contraseña debe tener al menos 8 caracteres',
+            footer: '',
+            timer: 1500
+        });
+        return false;
     }
-    if (pass1.length<8 && pass2.length<8) {
+
+    // Validar complejidad de la contraseña
+    if (!/^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*\W).{8,}$/.test(pass1)) {
         Swal.fire({
-        type: 'error',
-        title: 'Error',
-        text: 'La contraseña debe tener al menos 8 caracteres',
-        footer: '',
-        timer: 1500
-    });
-        return ;
-    }else{
-        actualizar_password();
+            type: 'error',
+            title: 'Error',
+            text: 'La contraseña debe contener al menos una letra mayúscula, una letra minúscula, un número y un carácter especial',
+            footer: '',
+            timer: 1500
+        });
+        return false;
     }
-        
+
+    // Si todo está bien, actualizar contraseña
+    actualizar_password();
+    return true;
+}
+
+
+
+async function actualizar_password() {
+    let id = document.getElementById('data').value;
+    let password = document.getElementById('password').value;
+
+    const formData = new FormData();
+    formData.append('id', id);
+    formData.append('password', password);
+
+    try {
+        let respuesta = await fetch(base_url + 'src/control/Usuario.php?tipo=actualizar_password', {
+            method: 'POST',
+            mode: 'cors',
+            cache: 'no-cache',
+            body: formData
+        });
+        let json = await respuesta.json();
+        if (json.status) {
+            Swal.fire({
+                type: 'success',
+                title: 'Éxito',
+                text: json.msg,
+                footer: '',
+                timer: 1500
+            }).then(() => {
+                window.location.href = base_url + 'login';
+            });
+        } else {
+            Swal.fire({
+                type: 'error',
+                title: 'Error',
+                text: json.msg,
+                footer: '',
+                timer: 1500
+            });
+        }
+    } catch (e) {
+        console.log("Error al actualizar la contraseña: " + e);
+        Swal.fire({
+            type: 'error',
+            title: 'Error',
+            text: 'Error de conexión al servidor',
+            footer: '',
+            timer: 1500
+        });
     }
- //TAREA ENVIAR INFORMACION DE PASSWORD Y ID AL CONTROLADOR USUARIO
+}
+
+
+ //enviar informacion de password y id al controlador usuario
+    // en el controlador recibir informacion y encriptar la nueva contraseña
+    // guardar en base de datos y actualizar campo de reset_password= 0 y token_password= 'vacio'
+    // notificar a usuario sobre el estado del proceso con alertas
+
+     //TAREA ENVIAR INFORMACION DE PASSWORD Y ID AL CONTROLADOR USUARIO
  // RESIVIR INFORMACION Y ENCRIPTAR LA NUEVA CONTRASEÑA 
  // GUARDAR EN BASE DE DAROS Y ACTUALIZAR CAMPO DE RESET_PASSWORD = 0 Y TOKEN_PASSWORD = ''
  // NOTIFICAR A USUARIO SOBRE EL ESTADO DEL PROCESO CON ALERTA
-
- async function actualizar_password(params) {
-    Swal.fire({
-        type: 'error',
-        title: 'Error',
-        text: 'Las contraseñas no coinciden',
-        footer: '',
-        timer: 1500
-    });
- }
 
         
   

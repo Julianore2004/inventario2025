@@ -875,3 +875,54 @@ try {
     }
 
 }
+
+if ($tipo == "actualizar_password") {
+    $id = $_POST['id'];
+    $password = $_POST['password'];
+
+    $arr_Respuesta = array('status' => false, 'msg' => 'Error al actualizar la contraseña');
+
+    // Validar que los datos no estén vacíos
+    if (!empty($id) && !empty($password)) {
+        $datos_usuario = $objUsuario->buscarUsuarioById($id);
+
+        if ($datos_usuario) {
+            // Verificar que el usuario tenga permiso para resetear contraseña
+            if ($datos_usuario->reset_password == 1) {
+                // Validar complejidad de la contraseña
+                if (preg_match('/^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*\W).{8,}$/', $password)) {
+                    // Encriptar la nueva contraseña
+                    $password_secure = password_hash($password, PASSWORD_DEFAULT);
+
+                    // Actualizar contraseña
+                    $respuesta_password = $objUsuario->actualizarPassword($id, $password_secure);
+
+                    if ($respuesta_password) {
+                        // Limpiar token y reset_password
+                        $respuesta_reset = $objUsuario->updateResetPassword($id, '', 0);
+
+                        if ($respuesta_reset) {
+                            $arr_Respuesta = array('status' => true, 'msg' => 'Contraseña actualizada correctamente');
+                        } else {
+                            $arr_Respuesta = array('status' => false, 'msg' => 'Error al limpiar token de reset');
+                        }
+                    } else {
+                        $arr_Respuesta = array('status' => false, 'msg' => 'Error al actualizar la contraseña en BD');
+                    }
+                } else {
+                    $arr_Respuesta = array('status' => false, 'msg' => 'La contraseña no cumple con los requisitos de seguridad');
+                }
+            } else {
+                $arr_Respuesta = array('status' => false, 'msg' => 'No tiene permisos para resetear contraseña');
+            }
+        } else {
+            $arr_Respuesta = array('status' => false, 'msg' => 'Usuario no encontrado');
+        }
+    } else {
+        $arr_Respuesta = array('status' => false, 'msg' => 'Datos incompletos');
+    }
+
+    echo json_encode($arr_Respuesta);
+}
+
+
