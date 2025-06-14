@@ -2,6 +2,7 @@
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\SMTP;
 use PHPMailer\PHPMailer\Exception;
+
 session_start();
 require_once('../model/admin-sesionModel.php');
 require_once('../model/admin-usuarioModel.php');
@@ -14,29 +15,74 @@ require '../../vendor/phpmailer/phpmailer/src/SMTP.php';
 
 $tipo = $_GET['tipo'];
 
-//instanciar la clase categoria model
+// Instanciar la clase categoria model
 $objSesion = new SessionModel();
 $objUsuario = new UsuarioModel();
 $objAdmin = new AdminModel();
 
-//variables de sesion
-$id_sesion = $_POST['sesion'];
-$token = $_POST['token'];
+// Verificar si las claves existen en $_POST antes de acceder a ellas
+$id_sesion = isset($_POST['sesion']) ? $_POST['sesion'] : '';
+$token = isset($_POST['token']) ? $_POST['token'] : '';
 
 if ($tipo == "validar_datos_reset_password") {
     $id_email = $_POST['id'];
     $token_email = $_POST['token'];
-    
+
     $arr_Respuesta = array('status' => false, 'msg' => 'Link Caducado');
     $datos_usuario = $objUsuario->buscarUsuarioById($id_email);
     if ($datos_usuario) {
-        if ($datos_usuario->reset_password == 1 && password_verify ($datos_usuario->token_password, $token_email)) {
-
-    $arr_Respuesta = array('status' => true, 'msg' => 'Ok');
+        if ($datos_usuario->reset_password == 1 && password_verify($datos_usuario->token_password, $token_email)) {
+            $arr_Respuesta = array('status' => true, 'msg' => 'Ok');
         }
     }
     echo json_encode($arr_Respuesta);
 }
+
+if ($tipo == "actualizar_password") {
+    $id = $_POST['id'];
+    $password = $_POST['password'];
+
+    $arr_Respuesta = array('status' => false, 'msg' => 'Error al actualizar la contraseña');
+
+    // Validar que los datos no estén vacíos
+    if (!empty($id) && !empty($password)) {
+        $datos_usuario = $objUsuario->buscarUsuarioById($id);
+
+        if ($datos_usuario) {
+            // Verificar que el usuario tenga permiso para resetear contraseña
+            if ($datos_usuario->reset_password == 1) {
+                // Encriptar la nueva contraseña
+                $password_secure = password_hash($password, PASSWORD_DEFAULT);
+
+                // Actualizar contraseña
+                $respuesta_password = $objUsuario->actualizarPassword($id, $password_secure);
+
+                if ($respuesta_password) {
+                    // Limpiar token y reset_password
+                    $respuesta_reset = $objUsuario->updateResetPassword($id, '', 0);
+
+                    if ($respuesta_reset) {
+                        $arr_Respuesta = array('status' => true, 'msg' => 'Contraseña actualizada correctamente');
+                        session_destroy(); // Cerrar la sesión
+                    } else {
+                        $arr_Respuesta = array('status' => false, 'msg' => 'Error al limpiar token de reset');
+                    }
+                } else {
+                    $arr_Respuesta = array('status' => false, 'msg' => 'Error al actualizar la contraseña en BD');
+                }
+            } else {
+                $arr_Respuesta = array('status' => false, 'msg' => 'No tiene permisos para resetear contraseña');
+            }
+        } else {
+            $arr_Respuesta = array('status' => false, 'msg' => 'Usuario no encontrado');
+        }
+    } else {
+        $arr_Respuesta = array('status' => false, 'msg' => 'Datos incompletos');
+    }
+
+    echo json_encode($arr_Respuesta);
+}
+
 
 
 if ($tipo == "listar_usuarios_ordenados_tabla") {
@@ -874,55 +920,6 @@ try {
 
     }
 
-}
-
-if ($tipo == "actualizar_password") {
-    $id = $_POST['id'];
-    $password = $_POST['password'];
-
-    $arr_Respuesta = array('status' => false, 'msg' => 'Error al actualizar la contraseña');
-
-    // Validar que los datos no estén vacíos
-    if (!empty($id) && !empty($password)) {
-        $datos_usuario = $objUsuario->buscarUsuarioById($id);
-
-        if ($datos_usuario) {
-            // Verificar que el usuario tenga permiso para resetear contraseña
-            if ($datos_usuario->reset_password == 1) {
-                // Validar complejidad de la contraseña
-                if (preg_match('/^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*\W).{8,}$/', $password)) {
-                    // Encriptar la nueva contraseña
-                    $password_secure = password_hash($password, PASSWORD_DEFAULT);
-
-                    // Actualizar contraseña
-                    $respuesta_password = $objUsuario->actualizarPassword($id, $password_secure);
-
-                    if ($respuesta_password) {
-                        // Limpiar token y reset_password
-                        $respuesta_reset = $objUsuario->updateResetPassword($id, '', 0);
-
-                        if ($respuesta_reset) {
-                            $arr_Respuesta = array('status' => true, 'msg' => 'Contraseña actualizada correctamente');
-                        } else {
-                            $arr_Respuesta = array('status' => false, 'msg' => 'Error al limpiar token de reset');
-                        }
-                    } else {
-                        $arr_Respuesta = array('status' => false, 'msg' => 'Error al actualizar la contraseña en BD');
-                    }
-                } else {
-                    $arr_Respuesta = array('status' => false, 'msg' => 'La contraseña no cumple con los requisitos de seguridad');
-                }
-            } else {
-                $arr_Respuesta = array('status' => false, 'msg' => 'No tiene permisos para resetear contraseña');
-            }
-        } else {
-            $arr_Respuesta = array('status' => false, 'msg' => 'Usuario no encontrado');
-        }
-    } else {
-        $arr_Respuesta = array('status' => false, 'msg' => 'Datos incompletos');
-    }
-
-    echo json_encode($arr_Respuesta);
 }
 
 

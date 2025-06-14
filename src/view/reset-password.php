@@ -41,6 +41,7 @@
       border-radius: 5px;
       outline: none;
       font-size: 1rem;
+      box-sizing: border-box;
     }
 
     .login-container input[type="password"] {
@@ -67,6 +68,11 @@
 
     .login-container button:hover {
       background: #88d3ce;
+    }
+
+    .login-container button:disabled {
+      background: #ccc;
+      cursor: not-allowed;
     }
 
     .login-container a {
@@ -97,16 +103,20 @@
     <img src="https://sispa.iestphuanta.edu.pe/img/logo.png" alt="" width="100%">
     <h4>Sistema de Control de Inventario</h4>
     <form id="frm_reset_password">
-      <input type="text" name="password" id="password" placeholder="Nueva Contraseña" required>
-      <input type="text" name="password1" id="password1" placeholder="Confirmar Contraseña" required>
-      <button type="button" onclick="validar_imputs_password();">Actualizar Contraseña</button>
+      <!-- CORREGIDO: Cambiar type="text" a type="password" -->
+      <input type="password" name="password" id="password" placeholder="Nueva Contraseña" required>
+      <input type="password" name="password1" id="password1" placeholder="Confirmar Contraseña" required>
+      <button type="button" onclick="validar_imputs_password();" id="btn_actualizar">Actualizar Contraseña</button>
     </form>
   </div>
 </body>
 
 <script src="<?php echo BASE_URL; ?>src/view/js/principal.js"></script>
 <script>
-  validar_datos_reset_password();
+  // CORREGIDO: Llamar la función después de que se cargue la página
+  document.addEventListener('DOMContentLoaded', function() {
+    validar_datos_reset_password();
+  });
 </script>
 
 <!-- Sweet Alerts Js-->
