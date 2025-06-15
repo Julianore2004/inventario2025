@@ -179,7 +179,7 @@ async function validar_datos_reset_password() {
     formData.append('sesion', sesion); // Añadir sesion al FormData
 
     try {
-        let respuesta = await fetch(base_url + 'src/control/Usuario.php?tipo=validar_datos_reset_password', {
+        let respuesta = await fetch(base_url_server + 'src/control/Usuario.php?tipo=validar_datos_reset_password', {
             method: 'POST',
             mode: 'cors',
             cache: 'no-cache',
@@ -200,7 +200,14 @@ async function validar_datos_reset_password() {
             });
 
             let formulario = document.getElementById('frm_reset_password');
-            formulario.innerHTML = `OK`;
+            formulario.innerHTML = `
+                <div class="alert alert-danger" role="alert">
+                    Link caducado, verifique su correo.
+                </div>
+                <button onclick="window.location.href='${base_url}login'" class="btn btn-primary">
+                    Volver al Login
+                </button>
+            `;
         }
     } catch (e) {
         console.log("Error al cargar" + e);
@@ -220,7 +227,7 @@ async function actualizar_password() {
     formData.append('token', token); // Añadir token al FormData
 
     try {
-        let respuesta = await fetch(base_url + 'src/control/Usuario.php?tipo=actualizar_password', {
+        let respuesta = await fetch(base_url_server + 'src/control/Usuario.php?tipo=actualizar_password', {
             method: 'POST',
             mode: 'cors',
             cache: 'no-cache',
@@ -258,7 +265,6 @@ async function actualizar_password() {
         });
     }
 }
-
 
 function validar_imputs_password() {
     let pass1 = document.getElementById('password').value.trim();

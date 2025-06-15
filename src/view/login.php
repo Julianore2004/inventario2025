@@ -1,3 +1,9 @@
+<?php
+// Verificar si la sesión ya está activa antes de intentar iniciarla
+if (session_status() == PHP_SESSION_NONE) {
+    session_start();
+}
+?>
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -106,5 +112,4 @@
 <script src="<?php echo BASE_URL; ?>src/view/js/sesion.js"></script>
 <!-- Sweet Alerts Js-->
 <script src="<?php echo BASE_URL ?>src/view/pp/plugins/sweetalert2/sweetalert2.min.js"></script>
-
 </html>
