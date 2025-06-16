@@ -1,9 +1,3 @@
-<?php
-// Verificar si la sesión ya está activa antes de intentar iniciarla
-if (session_status() == PHP_SESSION_NONE) {
-    session_start();
-}
-?>
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -19,7 +13,7 @@ if (session_status() == PHP_SESSION_NONE) {
       align-items: center;
       min-height: 100vh;
       font-family: 'Arial', sans-serif;
-      background: linear-gradient(135deg, #6e45e2, #88d3ce);
+      background: linear-gradient(135deg,rgb(226, 87, 69), #88d3ce);
       color: #fff;
     }
 
@@ -63,7 +57,7 @@ if (session_status() == PHP_SESSION_NONE) {
       width: 100%;
       padding: 10px;
       margin-top: 20px;
-      background: #6e45e2;
+      background:rgb(158, 226, 69);
       border: none;
       border-radius: 5px;
       color: #fff;
@@ -98,7 +92,7 @@ if (session_status() == PHP_SESSION_NONE) {
 
 <body>
   <div class="login-container">
-    <h1>Iniciar Sesión</h1>
+    <h1>Iniciar feewrxhdtcvbñnoijSesión</h1>
     <img src="https://sispa.iestphuanta.edu.pe/img/logo.png" alt="" width="100%">
     <h4>Sistema de Control de Inventario</h4>
     <form id="frm_login">

@@ -167,135 +167,16 @@ function cargar_sede_filtro(sedes) {
 
 
 
-// ------------------------------------------- FIN DE DATOS DE CARGA PARA FILTRO DE BUSQUEDA -----------------------------------------------
-async function validar_datos_reset_password() {
-    let id = document.getElementById('data').value;
-    let token = document.getElementById('data2').value;
-    let sesion = ''; // Asegúrate de obtener el valor correcto si es necesario
-
-    const formData = new FormData();
-    formData.append('id', id);
-    formData.append('token', token);
-    formData.append('sesion', sesion); // Añadir sesion al FormData
-
-    try {
-        let respuesta = await fetch(base_url_server + 'src/control/Usuario.php?tipo=validar_datos_reset_password', {
-            method: 'POST',
-            mode: 'cors',
-            cache: 'no-cache',
-            body: formData
-        });
-        let json = await respuesta.json();
-        if (json.status == false) {
-            Swal.fire({
-                type: 'error',
-                title: 'Error de Link',
-                text: "Link caducado, Verifique su correo",
-                confirmButtonClass: 'btn btn-confirm mt-2',
-                footer: '',
-                timer: 1000
-            }).then(() => {
-                // Redirección al login después de mostrar el mensaje de error
-                window.location.href = base_url + 'login';
-            });
-
-            let formulario = document.getElementById('frm_reset_password');
-            formulario.innerHTML = `
-                <div class="alert alert-danger" role="alert">
-                    Link caducado, verifique su correo.
-                </div>
-                <button onclick="window.location.href='${base_url}login'" class="btn btn-primary">
-                    Volver al Login
-                </button>
-            `;
-        }
-    } catch (e) {
-        console.log("Error al cargar" + e);
-    }
+// ------------------------------------------- FIN DE DATOS DE CARGA PARA FILTRO DE BUSQUEDA -----------------------------------------------async function validar_datos_reset_password(){
+async function validar_datos_reset_password(){
 }
 
-async function actualizar_password() {
-    let id = document.getElementById('data').value;
-    let password = document.getElementById('password').value;
-    let sesion = ''; // Asegúrate de obtener el valor correcto si es necesario
-    let token = ''; // Asegúrate de obtener el valor correcto si es necesario
-
-    const formData = new FormData();
-    formData.append('id', id);
-    formData.append('password', password);
-    formData.append('sesion', sesion); // Añadir sesion al FormData
-    formData.append('token', token); // Añadir token al FormData
-
-    try {
-        let respuesta = await fetch(base_url_server + 'src/control/Usuario.php?tipo=actualizar_password', {
-            method: 'POST',
-            mode: 'cors',
-            cache: 'no-cache',
-            body: formData
-        });
-        let json = await respuesta.json();
-        if (json.status) {
-            Swal.fire({
-                type: 'success',
-                title: 'Éxito',
-                text: json.msg,
-                footer: '',
-                timer: 1500
-            }).then(() => {
-                // Redirección al login después de actualización exitosa
-                window.location.href = base_url + 'login';
-            });
-        } else {
-            Swal.fire({
-                type: 'error',
-                title: 'Error',
-                text: json.msg,
-                footer: '',
-                timer: 1500
-            });
-        }
-    } catch (e) {
-        console.log("Error al actualizar la contraseña: " + e);
-        Swal.fire({
-            type: 'error',
-            title: 'Error',
-            text: 'Error de conexión al servidor',
-            footer: '',
-            timer: 1500
-        });
-    }
+function validar_imputs_password(){
 }
 
-function validar_imputs_password() {
-    let pass1 = document.getElementById('password').value.trim();
-    let pass2 = document.getElementById('password1').value.trim();
-
-    if (pass1 !== pass2) {
-        Swal.fire({
-            type: 'error',
-            title: 'Contraseñas no coinciden',
-            text: "Las contraseñas deben ser iguales",
-            footer: '',
-            timer: 1500
-        });
-        return false;
-    }
-
-    if (pass1.length < 8) {
-        Swal.fire({
-            type: 'error',
-            title: 'Error',
-            text: 'La contraseña debe tener al menos 8 caracteres',
-            footer: '',
-            timer: 1500
-        });
-        return false;
-    }
-
-    // Si todo está bien, actualizar contraseña
-    actualizar_password();
-    return true;
+async function actualizar_password(){
 }
+
 
 
 

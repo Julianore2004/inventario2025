@@ -10,9 +10,10 @@ class UsuarioModel
         $this->conexion = new Conexion();
         $this->conexion = $this->conexion->connect();
     }
+    
     public function registrarUsuario($dni, $apellidos_nombres, $correo, $telefono, $password)
     {
-        $password_secure = password_hash($password, PASSWORD_DEFAULT); // Hash de la contraseña
+        $password_secure = password_hash($password, PASSWORD_DEFAULT); //Encriptacion de contraseña mediante hash
         $sql = $this->conexion->query("INSERT INTO usuarios (dni, nombres_apellidos, correo, telefono, password) VALUES ('$dni','$apellidos_nombres','$correo','$telefono', '$password_secure')");
         if ($sql) {
             $sql = $this->conexion->insert_id;
@@ -21,7 +22,6 @@ class UsuarioModel
         }
         return $sql;
     }
-    
     public function actualizarUsuario($id, $dni, $nombres_apellidos, $correo, $telefono, $estado)
     {
         $sql = $this->conexion->query("UPDATE usuarios SET dni='$dni',nombres_apellidos='$nombres_apellidos',correo='$correo',telefono='$telefono',estado ='$estado' WHERE id='$id'");
@@ -29,17 +29,20 @@ class UsuarioModel
     }
     public function actualizarPassword($id, $password)
     {
-        $sql = $this->conexion->query("UPDATE usuarios SET password ='$password' WHERE id='$id'");
+        $password_secure = password_hash($password, PASSWORD_DEFAULT); //Encriptar nueva contraseña
+        $sql = $this->conexion->query("UPDATE usuarios SET password ='$password_secure' WHERE id='$id'");
         return $sql;
     }
-public function limpiarTokenReset($id)
-{
-    $sql = $this->conexion->query("UPDATE usuarios SET token_password = '', reset_password = 0 WHERE id='$id'");
-    return $sql;
-}
-
-    public function updateResetPassword($id, $token, $estado)
+    
+    // Método para actualizar contraseña y resetear los campos de recuperación
+    public function actualizarPasswordYResetearToken($id, $password)
     {
+        $password_secure = password_hash($password, PASSWORD_DEFAULT); //Encriptar nueva contraseña
+        $sql = $this->conexion->query("UPDATE usuarios SET password ='$password_secure', reset_password='0', token_password='' WHERE id='$id'");
+        return $sql;
+    }
+    
+    public function updateResetPassword($id,$token,$estado){
         $sql = $this->conexion->query("UPDATE usuarios SET token_password ='$token', reset_password='$estado' WHERE id='$id'");
         return $sql;
     }
@@ -115,8 +118,4 @@ public function limpiarTokenReset($id)
         }
         return $arrRespuesta;
     }
-    
-    
-
-
 }
