@@ -1,8 +1,9 @@
 <?php
+require_once __DIR__ . '/../../vendor/autoload.php'; // Ajusta la ruta según la estructura de tu proyecto
+
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\SMTP;
 use PHPMailer\PHPMailer\Exception;
-
 session_start();
 require_once('../model/admin-sesionModel.php');
 require_once('../model/admin-usuarioModel.php');
@@ -26,8 +27,14 @@ if ($tipo == "validar_datos_reset_password") {
     $arr_Respuesta = array('status' => false, 'msg' => 'link Caducado');
     $datos_usuario = $objUsuario->buscarUsuarioById($id_email);
     
-    if ($datos_usuario->reset_password == 1 && password_verify($datos_usuario->token_password, $token_email)) {
+    if ($datos_usuario && $datos_usuario->reset_password == 1 && password_verify($datos_usuario->token_password, $token_email)) {
         $arr_Respuesta = array('status' => true, 'msg' => 'OK');
+    } else {
+        // NUEVO: Limpiar sesión también cuando el link está expirado/inválido
+        session_destroy();
+        session_start();
+        
+        $arr_Respuesta = array('status' => false, 'msg' => 'link Caducado');
     }
     echo json_encode($arr_Respuesta);
 }
@@ -51,6 +58,10 @@ if ($tipo == "actualizar_password_reset") {
             $resultado = $objUsuario->actualizarPasswordYResetearToken($id_usuario, $nueva_password);
             
             if ($resultado) {
+                // Limpiar cualquier sesión activa
+                session_destroy();
+                session_start();
+                
                 $arr_Respuesta = array(
                     'status' => true, 
                     'msg' => 'Contraseña actualizada correctamente'
@@ -62,6 +73,10 @@ if ($tipo == "actualizar_password_reset") {
                 );
             }
         } else {
+            // NUEVO: Limpiar sesión también cuando el token es inválido
+            session_destroy();
+            session_start();
+            
             $arr_Respuesta = array(
                 'status' => false, 
                 'msg' => 'Token inválido o expirado'
@@ -76,6 +91,8 @@ if ($tipo == "actualizar_password_reset") {
     
     echo json_encode($arr_Respuesta);
 }
+
+
 
 if ($tipo == "listar_usuarios_ordenados_tabla") {
     $arr_Respuesta = array('status' => false, 'msg' => 'Error_Sesion');

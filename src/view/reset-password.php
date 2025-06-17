@@ -114,10 +114,7 @@
 
 <script src="<?php echo BASE_URL; ?>src/view/js/principal.js"></script>
 <script>
-  // CORREGIDO: Llamar la función después de que se cargue la página
-  document.addEventListener('DOMContentLoaded', function() {
     validar_datos_reset_password();
-  });
 </script>
 
 <!-- Sweet Alerts Js-->
