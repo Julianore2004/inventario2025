@@ -206,30 +206,38 @@ if ($tipo == "datos_registro") {
     echo json_encode($arr_Respuesta);
 }
 
- if ($tipo == "buscar_movimiento_id") {
- $arr_Respuesta = array('status' => false, 'msg' => 'Error_Sesion');
+if ($tipo == "buscar_movimiento_id") {
+    $arr_Respuesta = array('status' => false, 'msg' => 'Error_Sesion');
+
     if ($objSesion->verificar_sesion_si_activa($id_sesion, $token)) {
+       
         $id_movimiento = $_REQUEST['data'];
         $arrMovimiento = $objMovimiento->buscarMovimientoById($id_movimiento);
         $arrAmbOrigen = $objAmbiente->buscarAmbienteById($arrMovimiento->id_ambiente_origen);
         $arrAmbDestino = $objAmbiente->buscarAmbienteById($arrMovimiento->id_ambiente_destino);
         $arrUsuario = $objUsuario->buscarUsuarioById($arrMovimiento->id_usuario_registro);
-        $arrIes = $objInstitucion->buscarInstitucionById($arrMovimiento->id_ies);
+        $arrIes= $objInstitucion->buscarInstitucionById($arrMovimiento->id_ies);
+        $arrDetalle= $objMovimiento->buscarDetalle_MovimientoByMovimiento($id_movimiento);
 
+$array_bienes = array();
 
- }
-  echo json_encode($arrMovimiento);
-  echo json_encode('<hr>');
+foreach ($arrDetalle as $bien ) {
+   
+    $id_bien = $bien->$id_bien;
+    $res_bien = $objBien->buscarBienById($id_bien);
 
- echo json_encode($arrAmbOrigen);
-  echo json_encode('<hr>');
-
-  echo json_encode($arrAmbDestino);
-  echo json_encode('<hr>');
-
- echo json_encode($arrUsuario);
-  echo json_encode('<hr>');
-
- echo json_encode($arrIes);
 }
 
+        $arr_Respuesta['movimiento'] = $arrMovimiento;
+        $arr_Respuesta['amb_origen'] = $arrAmbOrigen;
+        $arr_Respuesta['amb_destino'] = $arrAmbDestino;
+        $arr_Respuesta['datos_usuario'] = $arrUsuario;
+        $arr_Respuesta['datos_ies'] = $arrIes;
+        $arr_Respuesta['detalle_movimiento'] = $arrDetalle;
+        $arr_Respuesta['status'] = true;
+        $arr_Respuesta['msg'] = 'correcto';
+    }
+
+    echo json_encode($arr_Respuesta);
+}
+// YA CREADO UN ARRAY EL OBJETO $RES_BIEN AGREGARLO AL ARRAYRESPUESTA
