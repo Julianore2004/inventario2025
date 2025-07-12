@@ -209,30 +209,37 @@ if ($tipo == "datos_registro") {
 
 // YA CREADO UN ARRAY EL OBJETO $RES_BIEN AGREGARLO AL ARRAYRESPUESTA
 
-if ($tipo == "buscar_movimiento_id") {
-    $arr_Respuesta = array('status' => false, 'msg' => 'Error_Sesion');
+if ($tipo=="buscar_movimento_id") {
+      $arr_Respuesta = array('status' => false, 'msg' => 'Error_Sesion');
     if ($objSesion->verificar_sesion_si_activa($id_sesion, $token)) {
-        $id_movimiento = $_REQUEST['data'];
-        $arrMovimiento = $objMovimiento->buscarMovimientoById($id_movimiento);
-        $arrAmbOrigen = $objAmbiente->buscarAmbienteById($arrMovimiento->id_ambiente_origen);
-        $arrAmbDestino = $objAmbiente->buscarAmbienteById($arrMovimiento->id_ambiente_destino);
-        $arrUsuario = $objUsuario->buscarUsuarioById($arrMovimiento->id_usuario_registro);
-        $arrIes= $objInstitucion->buscarInstitucionById($arrMovimiento->id_ies);
-        $arrDetalle = $objMovimiento->buscarDetalle_MovimientoByMovimiento($id_movimiento);
-        $array_bienes = array();
+       $id_movimiento = $_REQUEST['data'];
+       $arrMovimiento = $objMovimiento->buscarMovimientoById($id_movimiento);
+       $arrAmbOrigen = $objAmbiente->BuscarAmbienteById($arrMovimiento->id_ambiente_origen);
+       $arrAmbDestino = $objAmbiente->BuscarAmbienteById($arrMovimiento->id_ambiente_destino);
+         $arrUsuario = $objUsuario->buscarUsuarioById($arrMovimiento->id_usuario_registro);
+             $arrIes = $objInstitucion->buscarInstitucionById($arrMovimiento->id_ies);
+              $arrDetalle =$objMovimiento->buscarDetalle_MovimientoByMovimiento($id_movimiento);
+            
+                      
+// tarea  agregar bienes con array_push y despues el $array_bienes mandes ala respuesta y que se vea en la vista o interfaz y que muestree todos los atributos del bien
+
+$array_bienes = array();
         foreach ($arrDetalle as $bien) {
             $id_bien = $bien->id_bien;
             $res_bien = $objBien->buscarBienById($id_bien);
-            array_push($array_bienes, $res_bien);
-        }
-        $arr_Respuesta['movimiento'] = $arrMovimiento;
-        $arr_Respuesta['amb_origen'] = $arrAmbOrigen;
-        $arr_Respuesta['amb_destino'] = $arrAmbDestino;
-        $arr_Respuesta['datos_usuario'] = $arrUsuario;
-        $arr_Respuesta['datos_ies'] = $arrIes;
-        $arr_Respuesta['detalle'] = $array_bienes;
-        $arr_Respuesta['status'] = true;
-        $arr_Respuesta['msg'] = 'correcto';
+            // Validamos que se haya encontrado el bien
+                array_push($array_bienes, $res_bien);
+                    }
+                
+             $arr_Respuesta['movimiento'] = $arrMovimiento;
+               $arr_Respuesta['amb_origen'] = $arrAmbOrigen;
+                 $arr_Respuesta['amb_destino'] = $arrAmbDestino;
+                 $arr_Respuesta['datos_usuario'] = $arrUsuario;
+                 $arr_Respuesta['datos_ies'] = $arrIes;
+                   $arr_Respuesta['detalle']= $array_bienes;
+                   $arr_Respuesta['status'] = true;
+                     $arr_Respuesta['msg'] = 'correcto';
+                   
     }
-    echo json_encode($arr_Respuesta);
+echo json_encode($arr_Respuesta);
 }
