@@ -20,7 +20,6 @@ curl_setopt_array($curl, array(
         "x-rapidapi-key: XXXX"
     ),
 ));
-
 $response = curl_exec($curl);
 $err = curl_error($curl);
 curl_close($curl);
@@ -57,39 +56,105 @@ if ($err) {
     }
 
     $respuesta = json_decode($response);
+
     $meses = [
         1 => 'enero', 2 => 'febrero', 3 => 'marzo', 4 => 'abril',
         5 => 'mayo', 6 => 'junio', 7 => 'julio', 8 => 'agosto',
         9 => 'septiembre', 10 => 'octubre', 11 => 'noviembre', 12 => 'diciembre'
     ];
-
     $fecha = new DateTime();
     $dia = $fecha->format('d');
     $mes = $meses[(int)$fecha->format('m')];
     $anio = $fecha->format('Y');
 
     $contenido_pdf = '
-   <div style="font-family: helvetica; font-size: 14pt; font-weight: bold; text-align: center; padding: 10px 0; border-bottom: 1px solid #000; margin-bottom: 5px;">
-    PAPELETA DE ROTACIÓN DE BIENES
-</div>
+    <style>
+        body {
+            font-family: Helvetica, sans-serif;
+            font-size: 10pt;
+            color: #000;
+        }
+        .titulo-principal {
+            font-size: 14pt;
+            font-weight: bold;
+            text-align: center;
+            padding: 10px 0;
+            border-bottom: 1px solid #000;
+            margin-bottom: 15px;
+        }
+        .section {
+            margin-bottom: 15px;
+            line-height: 1.5;
+        }
+        .label {
+            font-weight: bold;
+            color: #333;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+            font-size: 9.5pt;
+        }
+        thead {
+            background-color: #f0f0f0;
+        }
+        th {
+            border: 1px solid #444;
+            padding: 6px;
+            font-weight: bold;
+            text-align: center;
+        }
+        td {
+            border: 1px solid #666;
+            padding: 5px;
+            text-align: center;
+        }
+        .fecha {
+            margin-top: 30px;
+            text-align: right;
+            font-style: italic;
+            font-size: 10pt;
+        }
+        .firma-tabla {
+            width: 100%;
+            margin-top: 60px;
+        }
+        .firma-tabla td {
+            width: 50%;
+            text-align: center;
+            border: none;
+            font-size: 10pt;
+            padding-top: 20px;
+        }
+        .firma-linea {
+            display: inline-block;
+            border-top: 1px solid #000;
+            width: 80%;
+            margin-bottom: 5px;
+        }
+    </style>
 
-    <div style="margin-bottom: 15px; line-height: 1.5;">
-        <div><span style="font-weight: bold; color: #333;">ENTIDAD:</span> DIRECCIÓN REGIONAL DE EDUCACIÓN - AYACUCHO</div>
-        <div><span style="font-weight: bold; color: #333;">ÁREA:</span> OFICINA DE ADMINISTRACIÓN</div>
-        <div><span style="font-weight: bold; color: #333;">ORIGEN:</span> ' . $respuesta->amb_origen->codigo . ' - ' . $respuesta->amb_origen->detalle . '</div>
-        <div><span style="font-weight: bold; color: #333;">DESTINO:</span> ' . $respuesta->amb_destino->codigo . ' - ' . $respuesta->amb_destino->detalle . '</div>
-        <div><span style="font-weight: bold; color: #333;">MOTIVO (*):</span> ' . $respuesta->movimiento->descripcion . '</div>
+    <div class="titulo-principal">PAPELETA DE ROTACIÓN DE BIENES</div>
+
+    <div class="section">
+        <div><span class="label">ENTIDAD:</span> DIRECCIÓN REGIONAL DE EDUCACIÓN - AYACUCHO</div>
+        <div><span class="label">ÁREA:</span> OFICINA DE ADMINISTRACIÓN</div>
+        <div><span class="label">ORIGEN:</span> ' . $respuesta->amb_origen->codigo . ' - ' . $respuesta->amb_origen->detalle . '</div>
+        <div><span class="label">DESTINO:</span> ' . $respuesta->amb_destino->codigo . ' - ' . $respuesta->amb_destino->detalle . '</div>
+        <div><span class="label">MOTIVO (*):</span> ' . $respuesta->movimiento->descripcion . '</div>
     </div>
-    <table style="width: 100%; border-collapse: collapse; margin-top: 30px; font-size: 9.5pt;" border="1">
+
+    <table>
         <thead>
-            <tr style="background-color: #f0f0f0;">
-                <th style="border: 1px solid #444; padding: 6px; font-weight: bold; text-align: center;">ITEM</th>
-                <th style="border: 1px solid #444; padding: 6px; font-weight: bold; text-align: center;">CÓDIGO PATRIMONIAL</th>
-                <th style="border: 1px solid #444; padding: 6px; font-weight: bold; text-align: center;">NOMBRE DEL BIEN</th>
-                <th style="border: 1px solid #444; padding: 6px; font-weight: bold; text-align: center;">MARCA</th>
-                <th style="border: 1px solid #444; padding: 6px; font-weight: bold; text-align: center;">COLOR</th>
-                <th style="border: 1px solid #444; padding: 6px; font-weight: bold; text-align: center;">MODELO</th>
-                <th style="border: 1px solid #444; padding: 6px; font-weight: bold; text-align: center;">ESTADO</th>
+            <tr>
+                <th>ITEM</th>
+                <th>CÓDIGO PATRIMONIAL</th>
+                <th>NOMBRE DEL BIEN</th>
+                <th>MARCA</th>
+                <th>COLOR</th>
+                <th>MODELO</th>
+                <th>ESTADO</th>
             </tr>
         </thead>
         <tbody>';
@@ -97,13 +162,13 @@ if ($err) {
     $contador = 1;
     foreach ($respuesta->detalle as $bien) {
         $contenido_pdf .= "<tr>";
-        $contenido_pdf .= "<td style='border: 1px solid #666; padding: 5px; text-align: center;'>$contador</td>";
-        $contenido_pdf .= "<td style='border: 1px solid #666; padding: 5px; text-align: center;'>$bien->cod_patrimonial</td>";
-        $contenido_pdf .= "<td style='border: 1px solid #666; padding: 5px; text-align: center;'>$bien->denominacion</td>";
-        $contenido_pdf .= "<td style='border: 1px solid #666; padding: 5px; text-align: center;'>$bien->marca</td>";
-        $contenido_pdf .= "<td style='border: 1px solid #666; padding: 5px; text-align: center;'>$bien->color</td>";
-        $contenido_pdf .= "<td style='border: 1px solid #666; padding: 5px; text-align: center;'>$bien->modelo</td>";
-        $contenido_pdf .= "<td style='border: 1px solid #666; padding: 5px; text-align: center;'>$bien->estado_conservacion</td>";
+        $contenido_pdf .= "<td>$contador</td>";
+        $contenido_pdf .= "<td>$bien->cod_patrimonial</td>";
+        $contenido_pdf .= "<td>$bien->denominacion</td>";
+        $contenido_pdf .= "<td>$bien->marca</td>";
+        $contenido_pdf .= "<td>$bien->color</td>";
+        $contenido_pdf .= "<td>$bien->modelo</td>";
+        $contenido_pdf .= "<td>$bien->estado_conservacion</td>";
         $contenido_pdf .= "</tr>";
         $contador++;
     }
@@ -111,20 +176,19 @@ if ($err) {
     $contenido_pdf .= '
         </tbody>
     </table>
-     <tr>
-     <tr>
-    <div style="margin-top: 90px; text-align: right; font-style: italic; font-size: 10pt;">
+
+    <div class="fecha">
         Ayacucho, ' . $dia . ' de ' . $mes . ' del ' . $anio . '
     </div>
-     
-    <table style="width: 100%; margin-top: 90px;">
+
+    <table class="firma-tabla">
         <tr>
-            <td style="width: 50%; text-align: center; border: none; font-size: 10pt; padding-top: 20px;">
-                <div style="display: inline-block; border-top: 1px solid #000; width: 80%; margin-bottom: 5px;"></div>
+            <td>
+                <div class="firma-linea"></div>
                 ENTREGUÉ CONFORME
             </td>
-            <td style="width: 50%; text-align: center; border: none; font-size: 10pt; padding-top: 20px;">
-                <div style="display: inline-block; border-top: 1px solid #000; width: 80%; margin-bottom: 5px;"></div>
+            <td>
+                <div class="firma-linea"></div>
                 RECIBÍ CONFORME
             </td>
         </tr>
@@ -133,9 +197,9 @@ if ($err) {
 
     $pdf = new MYPDF(PDF_PAGE_ORIENTATION, PDF_UNIT, PDF_PAGE_FORMAT, true, 'UTF-8', false);
     $pdf->SetCreator('DPW');
-    $pdf->SetAuthor('Ore Praejas Juan Julian');
+    $pdf->SetAuthor('Jose Ramirez');
     $pdf->SetTitle('Reporte de Movimiento');
-    $pdf->SetMargins(PDF_MARGIN_LEFT, 40, PDF_MARGIN_RIGHT);
+    $pdf->SetMargins(PDF_MARGIN_LEFT, 45, PDF_MARGIN_RIGHT);
     $pdf->SetAutoPageBreak(TRUE, PDF_MARGIN_BOTTOM);
     $pdf->SetFont('helvetica', '', 10);
     $pdf->AddPage();
