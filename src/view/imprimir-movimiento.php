@@ -50,7 +50,7 @@ if ($err) {
             $this->SetY(-20);
             $this->SetFont('helvetica', 'I', 8);
             $this->Cell(0, 0, '', 'T', 1, 'C');
-            $this->Cell(0, 5, 'Instituto Superior Tecnológico Huanta - Formación para el futuro', 0, 1, 'C');
+            $this->Cell(0, 5, 'Instituto Superior Tecnológico Huanta', 0, 1, 'C');
             $this->Cell(0, 5, 'Página ' . $this->getAliasNumPage() . ' de ' . $this->getAliasNbPages(), 0, 0, 'C');
         }
     }
@@ -69,11 +69,7 @@ if ($err) {
 
     $contenido_pdf = '
     <style>
-        body {
-            font-family: Helvetica, sans-serif;
-            font-size: 10pt;
-            color: #000;
-        }
+       
         .titulo-principal {
             font-size: 14pt;
             font-weight: bold;
