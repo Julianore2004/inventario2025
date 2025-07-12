@@ -200,7 +200,7 @@ if ($err) {
     $pdf->SetCreator('DPW');
     $pdf->SetAuthor('Ore Parejas Juan Julian');
     $pdf->SetTitle('Reporte de Movimiento');
-    $pdf->SetMargins(PDF_MARGIN_LEFT, 45, PDF_MARGIN_RIGHT);
+    $pdf->SetMargins(PDF_MARGIN_LEFT, 40, PDF_MARGIN_RIGHT);
     $pdf->SetAutoPageBreak(TRUE, PDF_MARGIN_BOTTOM);
     $pdf->SetFont('helvetica', '', 10);
     $pdf->AddPage();
