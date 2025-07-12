@@ -176,7 +176,8 @@ if ($err) {
     $contenido_pdf .= '
         </tbody>
     </table>
-
+ <tr>
+  <tr>
     <div class="fecha">
         Ayacucho, ' . $dia . ' de ' . $mes . ' del ' . $anio . '
     </div>
@@ -197,7 +198,7 @@ if ($err) {
 
     $pdf = new MYPDF(PDF_PAGE_ORIENTATION, PDF_UNIT, PDF_PAGE_FORMAT, true, 'UTF-8', false);
     $pdf->SetCreator('DPW');
-    $pdf->SetAuthor('Jose Ramirez');
+    $pdf->SetAuthor('Ore Parejas Juan Julian');
     $pdf->SetTitle('Reporte de Movimiento');
     $pdf->SetMargins(PDF_MARGIN_LEFT, 45, PDF_MARGIN_RIGHT);
     $pdf->SetAutoPageBreak(TRUE, PDF_MARGIN_BOTTOM);
