@@ -3,7 +3,7 @@
         'name' => 'yucra/sigi',
         'pretty_version' => 'dev-main',
         'version' => 'dev-main',
-        'reference' => '4d23b5292a4d684ca909e4c1365b2ecba9cace94',
+        'reference' => 'a67bbe7bc58cd62ded66c3d8678c441353fb0550',
         'type' => 'project',
         'install_path' => __DIR__ . '/../../',
         'aliases' => array(),
@@ -112,7 +112,7 @@
         'yucra/sigi' => array(
             'pretty_version' => 'dev-main',
             'version' => 'dev-main',
-            'reference' => '4d23b5292a4d684ca909e4c1365b2ecba9cace94',
+            'reference' => 'a67bbe7bc58cd62ded66c3d8678c441353fb0550',
             'type' => 'project',
             'install_path' => __DIR__ . '/../../',
             'aliases' => array(),
