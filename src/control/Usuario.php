@@ -97,23 +97,20 @@ if ($tipo == "actualizar_password_reset") {
 if ($tipo == "listar_usuarios_ordenados_tabla") {
     $arr_Respuesta = array('status' => false, 'msg' => 'Error_Sesion');
     if ($objSesion->verificar_sesion_si_activa($id_sesion, $token)) {
-        //print_r($_POST);
         $pagina = $_POST['pagina'];
         $cantidad_mostrar = $_POST['cantidad_mostrar'];
         $busqueda_tabla_dni = $_POST['busqueda_tabla_dni'];
         $busqueda_tabla_nomap = $_POST['busqueda_tabla_nomap'];
         $busqueda_tabla_estado = $_POST['busqueda_tabla_estado'];
-        //repuesta
+
         $arr_Respuesta = array('status' => false, 'contenido' => '');
         $busqueda_filtro = $objUsuario->buscarUsuariosOrderByApellidosNombres_tabla_filtro($busqueda_tabla_dni, $busqueda_tabla_nomap, $busqueda_tabla_estado);
         $arr_Usuario = $objUsuario->buscarUsuariosOrderByApellidosNombres_tabla($pagina, $cantidad_mostrar, $busqueda_tabla_dni, $busqueda_tabla_nomap, $busqueda_tabla_estado);
+
         $arr_contenido = [];
         if (!empty($arr_Usuario)) {
-            // recorremos el array para agregar las opciones de las categorias
             for ($i = 0; $i < count($arr_Usuario); $i++) {
-                // definimos el elemento como objeto
                 $arr_contenido[$i] = (object) [];
-                // agregamos solo la informacion que se desea enviar a la vista
                 $arr_contenido[$i]->id = $arr_Usuario[$i]->id;
                 $arr_contenido[$i]->dni = $arr_Usuario[$i]->dni;
                 $arr_contenido[$i]->nombres_apellidos = $arr_Usuario[$i]->nombres_apellidos;
@@ -121,7 +118,9 @@ if ($tipo == "listar_usuarios_ordenados_tabla") {
                 $arr_contenido[$i]->telefono = $arr_Usuario[$i]->telefono;
                 $arr_contenido[$i]->estado = $arr_Usuario[$i]->estado;
                 $opciones = '<button type="button" title="Editar" class="btn btn-primary waves-effect waves-light" data-toggle="modal" data-target=".modal_editar' . $arr_Usuario[$i]->id . '"><i class="fa fa-edit"></i></button>
-                                <button class="btn btn-info" title="Resetear Contraseña" onclick="reset_password(' . $arr_Usuario[$i]->id . ')"><i class="fa fa-key"></i></button>';
+                            <button class="btn btn-info" title="Resetear Contraseña" onclick="reset_password(' . $arr_Usuario[$i]->id . ')"><i class="fa fa-key"></i></button>
+                           
+                            <a href="'.BASE_URL. 'imprimir-usuarios/'. $arr_Usuario[$i]->id . '&sesion=' . $id_sesion . '&token=' . $token . '" class="btn btn-success waves-effect waves-light"><i class="fa fa-print"></i></a>';
                 $arr_contenido[$i]->options = $opciones;
             }
             $arr_Respuesta['total'] = count($busqueda_filtro);
@@ -131,6 +130,7 @@ if ($tipo == "listar_usuarios_ordenados_tabla") {
     }
     echo json_encode($arr_Respuesta);
 }
+
 
 if ($tipo == "registrar") {
     $arr_Respuesta = array('status' => false, 'msg' => 'Error_Sesion');

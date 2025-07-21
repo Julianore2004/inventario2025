@@ -10,10 +10,11 @@ $tipo = $_GET['tipo'];
 $objSesion = new SessionModel();
 $objInstitucion = new InstitucionModel();
 $objUsuario = new UsuarioModel();
-
+$objAdmin = new AdminModel();
 //variables de sesion
 $id_sesion = $_POST['sesion'];
 $token = $_POST['token'];
+
 if ($tipo == "listar") {
     $arr_Respuesta = array('status' => false, 'msg' => 'Error_Sesion');
     if ($objSesion->verificar_sesion_si_activa($id_sesion, $token)) {
@@ -62,8 +63,10 @@ if ($tipo == "listar_instituciones") {
                 $arr_contenido[$i]->beneficiario = $arr_Institucion[$i]->beneficiario;
                 $arr_contenido[$i]->cod_modular = $arr_Institucion[$i]->cod_modular;
                 $arr_contenido[$i]->ruc = $arr_Institucion[$i]->ruc;
-                $arr_contenido[$i]->nombre = $arr_Institucion[$i]->nombre;
-                $opciones = '<button type="button" title="Editar" class="btn btn-primary waves-effect waves-light" data-toggle="modal" data-target=".modal_editar' . $arr_Institucion[$i]->id . '"><i class="fa fa-edit"></i></button>';
+               $opciones = '<button type="button" title="Editar" class="btn btn-primary waves-effect waves-light" data-toggle="modal" data-target=".modal_editar' . $arr_Institucion[$i]->id . '"><i class="fa fa-edit"></i></button>
+<a href="'.BASE_URL.'imprimir-institucion/'.$arr_Institucion[$i]->id.'" class="btn btn-success"><i class="fa fa-print"></i></a>';
+
+                
                 $arr_contenido[$i]->options = $opciones;
             }
             $arr_Respuesta['total'] = count($busqueda_filtro);
