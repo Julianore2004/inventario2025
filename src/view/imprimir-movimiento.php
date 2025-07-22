@@ -203,5 +203,5 @@ if ($err) {
     $pdf->writeHTML($contenido_pdf, true, false, true, false, '');
     ob_clean();
     $pdf->Output('reporte_movimiento.pdf', 'I');
-}
+}                 
 ?>

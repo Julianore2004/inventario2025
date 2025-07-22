@@ -64,7 +64,7 @@ if ($tipo == "listar_instituciones") {
                 $arr_contenido[$i]->cod_modular = $arr_Institucion[$i]->cod_modular;
                 $arr_contenido[$i]->ruc = $arr_Institucion[$i]->ruc;
                $opciones = '<button type="button" title="Editar" class="btn btn-primary waves-effect waves-light" data-toggle="modal" data-target=".modal_editar' . $arr_Institucion[$i]->id . '"><i class="fa fa-edit"></i></button>
-<a href="'.BASE_URL.'imprimir-institucion/'.$arr_Institucion[$i]->id.'" class="btn btn-success"><i class="fa fa-print"></i></a>';
+';
 
                 
                 $arr_contenido[$i]->options = $opciones;
@@ -177,6 +177,35 @@ if ($tipo == "datos_registro") {
             $arr_Respuesta['contenido'] = $arr_contenido;
         }
         $arr_Respuesta['msg'] = "Datos encontrados";
+    }
+    echo json_encode($arr_Respuesta);
+
+}
+
+// Agregar este caso al final del archivo Institucion.php, antes del cierre 
+
+if ($tipo == "reporte_general") {
+    $arr_Respuesta = array('status' => false, 'msg' => 'Error_Sesion');
+    if ($objSesion->verificar_sesion_si_activa($id_sesion, $token)) {
+        //repuesta
+        $arr_Respuesta = array('status' => false, 'contenido' => '');
+        $arr_Institucion = $objInstitucion->obtenerTodasLasInstituciones();
+        $arr_contenido = [];
+        if (!empty($arr_Institucion)) {
+            // recorremos el array para agregar las opciones de las instituciones
+            for ($i = 0; $i < count($arr_Institucion); $i++) {
+                // definimos el elemento como objeto
+                $arr_contenido[$i] = (object) [];
+                // agregamos toda la informacion necesaria para el reporte
+                $arr_contenido[$i]->id = $arr_Institucion[$i]->id;
+                $arr_contenido[$i]->beneficiario = $arr_Institucion[$i]->beneficiario;
+                $arr_contenido[$i]->cod_modular = $arr_Institucion[$i]->cod_modular;
+                $arr_contenido[$i]->ruc = $arr_Institucion[$i]->ruc;
+                $arr_contenido[$i]->nombre = $arr_Institucion[$i]->nombre;
+            }
+            $arr_Respuesta['status'] = true;
+            $arr_Respuesta['contenido'] = $arr_contenido;
+        }
     }
     echo json_encode($arr_Respuesta);
 }

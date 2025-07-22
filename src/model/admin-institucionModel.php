@@ -20,6 +20,17 @@ class InstitucionModel
         }
         return $sql;
     }
+    // Agregar esta función al final de la clase InstitucionModel, antes del cierre }
+    
+    public function obtenerTodasLasInstituciones()
+    {
+        $sql = $this->conexion->query("SELECT id, beneficiario, cod_modular, ruc, nombre FROM institucion ORDER BY nombre ASC");
+        $arrRespuesta = array();
+        while ($objeto = $sql->fetch_object()) {
+            array_push($arrRespuesta, $objeto);
+        }
+        return $arrRespuesta;
+    }
     public function actualizarInstitucion($id, $beneficiario, $cod_modular, $ruc, $nombre)
     {
         $sql = $this->conexion->query("UPDATE institucion SET beneficiario= '$beneficiario', cod_modular='$cod_modular',ruc='$ruc',nombre='$nombre' WHERE id='$id'");
