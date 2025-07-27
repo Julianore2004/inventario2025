@@ -157,11 +157,11 @@ if ($err) {
         $contador = 1;
         foreach ($respuesta->contenido as $institucion) {
             $contenido_pdf .= "<tr>";
-            $contenido_pdf .= "<td class='numero-centro'>$contador</td>";
-            $contenido_pdf .= "<td class='numero-centro'>" . $institucion->cod_modular . "</td>";
-            $contenido_pdf .= "<td class='numero-centro'>" . $institucion->ruc . "</td>";
-            $contenido_pdf .= "<td>" . $institucion->beneficiario . "</td>";
-            $contenido_pdf .= "<td>" . $institucion->nombre . "</td>";
+            $contenido_pdf .= "<td class='numero-centro' width='8%'>$contador</td>";
+            $contenido_pdf .= "<td class='numero-centro' width='18%'>" . $institucion->cod_modular . "</td>";
+            $contenido_pdf .= "<td class='numero-centro' width='15%'>" . $institucion->ruc . "</td>";
+            $contenido_pdf .= "<td width='25%'>" . $institucion->beneficiario . "</td>";
+            $contenido_pdf .= "<td width='34%'>" . $institucion->nombre . "</td>";
             $contenido_pdf .= "</tr>";
             $contador++;
         }
