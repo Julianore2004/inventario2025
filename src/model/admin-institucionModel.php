@@ -20,7 +20,6 @@ class InstitucionModel
         }
         return $sql;
     }
-    // Agregar esta función al final de la clase InstitucionModel, antes del cierre }
     
     public function obtenerTodasLasInstituciones()
     {
@@ -89,6 +88,20 @@ class InstitucionModel
         return $arrRespuesta;
     }
 
-
+    // Método actualizado para incluir el nombre del beneficiario
+    public function listarTodasInstituciones()
+    {
+        $sql = $this->conexion->query("
+            SELECT i.*, u.nombres_apellidos 
+            FROM institucion i 
+            LEFT JOIN usuarios u ON i.beneficiario = u.id 
+            ORDER BY i.nombre ASC
+        ");
+        $arrRespuesta = array();
+        while ($objeto = $sql->fetch_object()) {
+            array_push($arrRespuesta, $objeto);
+        }
+        return $arrRespuesta;
+    }
 
 }

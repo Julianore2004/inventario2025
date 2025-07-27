@@ -1,11 +1,11 @@
 <?php
-
+session_start();
 require_once('./vendor/tecnickcom/tcpdf/tcpdf.php');
 
 // CONSULTA A LA API
 $curl = curl_init();
 curl_setopt_array($curl, array(
-    CURLOPT_URL => BASE_URL_SERVER . "src/control/Institucion.php?tipo=listar_todas_instituciones&sesion=" . $_SESSION['sesion_id'] . "&token=" . $_SESSION['sesion_token'],
+    CURLOPT_URL => BASE_URL_SERVER . "src/control/Movimiento.php?tipo=listar_todos_movimientos&sesion=" . $_SESSION['sesion_id'] . "&token=" . $_SESSION['sesion_token'] . "&ies=1",
     CURLOPT_RETURNTRANSFER => true,
     CURLOPT_TIMEOUT => 30,
     CURLOPT_CUSTOMREQUEST => "GET"
@@ -15,32 +15,12 @@ $err = curl_error($curl);
 curl_close($curl);
 
 if ($err) {
-    echo "Error cURL: $err";
+    echo "Error: $err";
     exit;
 }
-
-// Limpiar la respuesta de warnings y notices de PHP
-$json_start = strpos($response, '{');
-if ($json_start !== false) {
-    $clean_response = substr($response, $json_start);
-} else {
-    echo "No se encontró JSON válido en la respuesta";
-    exit;
-}
-
-$data = json_decode($clean_response);
-
-// Verificar si la decodificación JSON fue exitosa
-if (json_last_error() !== JSON_ERROR_NONE) {
-    echo "Error al decodificar JSON: " . json_last_error_msg();
-    exit;
-}
-
-if (!$data || !isset($data->status) || !$data->status) {
-    echo "No se encontraron instituciones o error en la respuesta.";
-    if ($data && isset($data->msg)) {
-        echo " Mensaje: " . $data->msg;
-    }
+$data = json_decode($response);
+if (!$data->status) {
+    echo "No se encontraron movimientos.";
     exit;
 }
 
@@ -77,10 +57,10 @@ $pdf->SetMargins(10, 40, 10);
 $pdf->SetHeaderMargin(5);
 $pdf->SetAutoPageBreak(true, 15);
 $pdf->SetFont('helvetica', '', 9);
-$pdf->AddPage('P'); // Orientación vertical para instituciones
+$pdf->AddPage('L'); // 'L' para orientación horizontal (Landscape)
 
 // TÍTULO Y FECHA
-$html = "<h2 style='text-align:center;'>LISTADO DE INSTITUCIONES EDUCATIVAS</h2>";
+$html = "<h2 style='text-align:center;'>REPORTE GENERAL DE MOVIMIENTOS DE BIENES</h2>";
 $html .= "<p style='text-align:right;'>Ayacucho, $dia de $mes del $anio</p>";
 
 // TABLA PROFESIONAL
@@ -93,57 +73,59 @@ th {
     text-align: center;
     vertical-align: middle;
     font-size: 8px;
-    padding: 3px;
 }
 td {
     border: 1px solid #000;
     font-size: 8px;
-    padding: 3px;
+    padding: 2px;
     vertical-align: middle;
     text-align: center;
-}
-.left-align {
-    text-align: left;
 }
 </style>
 
 <table cellspacing="0" cellpadding="3">
     <thead>
         <tr>
-            <th width="8%">#</th>
-            <th width="15%">Código Modular</th>
-            <th width="18%">RUC</th>
-            <th width="45%">Nombre de la Institución</th>
-            <th width="14%">Beneficiario</th>
+            <th width="3%">#</th>
+            <th width="11%">Fecha</th>
+            <th width="13%">Origen</th>
+            <th width="13%">Destino</th>
+            <th width="11%">Responsable</th>
+            <th width="14%">Descripción</th>
+            <th width="10%">Cod. Patrimonial</th>
+            <th width="15%">Bien</th>
+            <th width="5%">Marca</th>
+            <th width="5%">Estado</th>
         </tr>
     </thead>
     <tbody>';
 
 // LLENADO DE FILAS
 $contador = 1;
-foreach ($data->data as $institucion) {
-    $html .= '<tr>';
-    $html .= '<td width="8%">' . $contador . '</td>';
-    $html .= '<td width="15%">' . ($institucion->cod_modular ?: 'S/C') . '</td>';
-    $html .= '<td width="18%">' . ($institucion->ruc ?: 'S/RUC') . '</td>';
-    $html .= '<td width="45%" class="left-align">' . htmlspecialchars($institucion->nombre) . '</td>';
-    $html .= '<td width="14%">' . (isset($institucion->nombres_apellidos) ? htmlspecialchars($institucion->nombres_apellidos) : 'N/A') . '</td>';
-    $html .= '</tr>';
-    $contador++;
+foreach ($data->data as $mov) {
+    foreach ($mov->detalle as $bien) {
+        $html .= '<tr>';
+        $html .= '<td width="3%">' . $contador . '</td>';
+        $html .= '<td width="11%">' . $mov->movimiento->fecha_registro . '</td>';
+        $html .= '<td width="13%">' . $mov->origen->codigo . ' - ' . $mov->origen->detalle . '</td>';
+        $html .= '<td width="13%">' . $mov->destino->codigo . ' - ' . $mov->destino->detalle . '</td>';
+        $html .= '<td width="11%">' . $mov->usuario->nombres_apellidos . '</td>';
+        $html .= '<td width="14%">' . $mov->movimiento->descripcion . '</td>';
+        $html .= '<td width="10%">' . $bien->cod_patrimonial . '</td>';
+        $html .= '<td width="15%">' . $bien->denominacion . '</td>';
+        $html .= '<td width="5%">' . $bien->marca . '</td>';
+        $html .= '<td width="5%">' . $bien->estado_conservacion . '</td>';
+        $html .= '</tr>';
+        $contador++;
+    }
 }
 
 $html .= '
     </tbody>
 </table>';
 
-// AGREGAR RESUMEN
-$total_instituciones = count($data->data);
-$html .= "<br><br>";
-$html .= "<p style='text-align:right;'><strong>Total de Instituciones: $total_instituciones</strong></p>";
-
 // ESCRIBIR HTML EN EL PDF
 $pdf->writeHTML($html, true, false, true, false, '');
 ob_clean();
 
-$pdf->Output("listado-instituciones.pdf", "I");
-?>
+$pdf->Output("imprimir todos los movimientos.pdf", "I");

@@ -932,3 +932,34 @@ try {
 }
 
 
+if ($tipo == "listar_todos_usuarios") {
+    $arr_Respuesta = array('status' => false, 'msg' => 'Error_Sesion');
+    
+    // Manejar parámetros de sesión tanto por GET como por POST
+    $id_sesion_param = isset($_GET['sesion']) ? $_GET['sesion'] : $id_sesion;
+    $token_param = isset($_GET['token']) ? $_GET['token'] : $token;
+    
+    if ($objSesion->verificar_sesion_si_activa($id_sesion_param, $token_param)) {
+        // Respuesta
+        $arr_Respuesta = array('status' => false, 'data' => '');
+        $arr_Usuario = $objUsuario->listarTodosLosUsuarios();
+        $arr_contenido = [];
+        
+        if (!empty($arr_Usuario)) {
+            // Recorrer usuarios y preparar datos para el PDF
+            for ($i = 0; $i < count($arr_Usuario); $i++) {
+                $arr_contenido[$i] = (object) [];
+                $arr_contenido[$i]->id = $arr_Usuario[$i]->id;
+                $arr_contenido[$i]->dni = $arr_Usuario[$i]->dni;
+                $arr_contenido[$i]->nombres_apellidos = $arr_Usuario[$i]->nombres_apellidos;
+                $arr_contenido[$i]->correo = $arr_Usuario[$i]->correo;
+                $arr_contenido[$i]->telefono = $arr_Usuario[$i]->telefono;
+                $arr_contenido[$i]->estado = $arr_Usuario[$i]->estado;
+            }
+            
+            $arr_Respuesta['status'] = true;
+            $arr_Respuesta['data'] = $arr_contenido;
+        }
+    }
+    echo json_encode($arr_Respuesta);
+}

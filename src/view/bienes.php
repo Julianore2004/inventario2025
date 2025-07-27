@@ -36,13 +36,15 @@
                     </div>
                 </div>
                 <div class="form-group mb-0 text-center ">
-                    <button type="button" class="btn btn-primary waves-effect waves-light" onclick="numero_pagina(1);"><i class="fa fa-file-search"></i> Buscar</button>
+                    <button type="button" class="btn btn-primary waves-effect waves-light" onclick="numero_pagina(1);"><i class="fa fa-search"></i> Buscar</button>
                 </div>
             </div>
         </div>
         <div class="card">
             <div class="card-body">
-                <a href="<?= BASE_URL ?>reporte-bienes" class="btn btn-success"><i class="fa fa-file-excel"></i></a>
+
+                <a href="<?php BASE_URL ?>imprimir-bienes" class="btn btn-danger"><i class="fa fa-print"></i></a>
+                <a href="<?php BASE_URL ?>reporte-bienes" class="btn btn-success"><i class="fa fa-file-excel"></i></a>
                 <h4 class="card-title">Resultados de Búsqueda</h4>
                 <div id="filtros_tabla_header" class="form-group  row page-title-box d-flex align-items-center justify-content-between m-0 mb-1 p-0">
                     <input type="hidden" id="pagina" value="1">
