@@ -79,7 +79,7 @@ $pdf->AddPage('P');
 
 // TÍTULO Y FECHA
 $html = "
-<h2 style='text-align:center;font-size:14pt;'>LISTADO DE AMBIENTES DE INSTITUCIONES EDUCATIVAS</h2>
+<h2 style='text-align:center;font-size:14pt;'>LISTADO DE AMBIENTES</h2>
 <p style='text-align:right;font-size:9pt;'>Ayacucho, $dia de $mes del $anio</p>
 ";
 

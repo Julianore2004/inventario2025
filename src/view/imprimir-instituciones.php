@@ -80,7 +80,7 @@ $pdf->AddPage('P');
 
 // TÍTULO Y FECHA
 $html = "
-<h2 style='text-align:center;font-size:13pt;'>LISTADO DE INSTITUCIONES EDUCATIVAS</h2>
+<h2 style='text-align:center;font-size:13pt;'>LISTADO DE INSTITUCIONES</h2>
 <p style='text-align:right;font-size:9pt;'>Ayacucho, $dia de $mes del $anio</p>";
 
 // ESTILOS MODERNOS

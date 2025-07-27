@@ -81,7 +81,7 @@ $pdf->AddPage('L');
 
 // TÍTULO
 $html = "
-<h2 style='text-align:center;font-size:13pt;'>INVENTARIO GENERAL DE BIENES PATRIMONIALES</h2>
+<h2 style='text-align:center;font-size:13pt;'>INVENTARIO GENERAL DE BIENES</h2>
 <p style='text-align:right;font-size:9pt;'>Ayacucho, $dia de $mes del $anio</p>";
 
 // ESTILOS MODERNOS
