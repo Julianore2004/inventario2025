@@ -56,46 +56,50 @@ $pdf = new MYPDF();
 $pdf->SetMargins(10, 40, 10);
 $pdf->SetHeaderMargin(5);
 $pdf->SetAutoPageBreak(true, 15);
-$pdf->SetFont('helvetica', '', 9);
-$pdf->AddPage('L'); // 'L' para orientación horizontal (Landscape)
+$pdf->SetFont('helvetica', '', 8);
+$pdf->AddPage('L'); // Horizontal
 
 // TÍTULO Y FECHA
-$html = "<h2 style='text-align:center;'>REPORTE GENERAL DE MOVIMIENTOS DE BIENES</h2>";
-$html .= "<p style='text-align:right;'>Ayacucho, $dia de $mes del $anio</p>";
+$html = "<h2 style='text-align:center;font-size:13pt;'>REPORTE GENERAL DE MOVIMIENTOS DE BIENES</h2>";
+$html .= "<p style='text-align:right;font-size:9pt;'>Ayacucho, $dia de $mes del $anio</p>";
 
-// TABLA PROFESIONAL
+// ESTILOS MODERNOS
 $html .= '
 <style>
 th {
-    background-color: #f2f2f2;
+    background-color: #e6f0fa;
     font-weight: bold;
-    border: 1px solid #000;
+    border: 1px solid #ccc;
     text-align: center;
     vertical-align: middle;
-    font-size: 8px;
+    font-size: 7pt;
+    padding: 3px;
 }
 td {
-    border: 1px solid #000;
-    font-size: 8px;
-    padding: 2px;
+    border: 1px solid #ddd;
+    font-size: 7pt;
+    padding: 3px;
     vertical-align: middle;
     text-align: center;
+}
+td.left {
+    text-align: left;
 }
 </style>
 
-<table cellspacing="0" cellpadding="3">
+<table cellspacing="0" cellpadding="2">
     <thead>
         <tr>
             <th width="3%">#</th>
-            <th width="11%">Fecha</th>
-            <th width="13%">Origen</th>
-            <th width="13%">Destino</th>
-            <th width="11%">Responsable</th>
+            <th width="10%">Fecha</th>
+            <th width="12%">Origen</th>
+            <th width="12%">Destino</th>
+            <th width="12%">Responsable</th>
             <th width="14%">Descripción</th>
             <th width="10%">Cod. Patrimonial</th>
             <th width="15%">Bien</th>
-            <th width="5%">Marca</th>
-            <th width="5%">Estado</th>
+            <th width="6%">Marca</th>
+            <th width="6%">Estado</th>
         </tr>
     </thead>
     <tbody>';
@@ -106,26 +110,24 @@ foreach ($data->data as $mov) {
     foreach ($mov->detalle as $bien) {
         $html .= '<tr>';
         $html .= '<td width="3%">' . $contador . '</td>';
-        $html .= '<td width="11%">' . $mov->movimiento->fecha_registro . '</td>';
-        $html .= '<td width="13%">' . $mov->origen->codigo . ' - ' . $mov->origen->detalle . '</td>';
-        $html .= '<td width="13%">' . $mov->destino->codigo . ' - ' . $mov->destino->detalle . '</td>';
-        $html .= '<td width="11%">' . $mov->usuario->nombres_apellidos . '</td>';
-        $html .= '<td width="14%">' . $mov->movimiento->descripcion . '</td>';
-        $html .= '<td width="10%">' . $bien->cod_patrimonial . '</td>';
-        $html .= '<td width="15%">' . $bien->denominacion . '</td>';
-        $html .= '<td width="5%">' . $bien->marca . '</td>';
-        $html .= '<td width="5%">' . $bien->estado_conservacion . '</td>';
+        $html .= '<td width="10%">' . htmlspecialchars($mov->movimiento->fecha_registro) . '</td>';
+        $html .= '<td width="12%" class="left">' . htmlspecialchars($mov->origen->codigo . ' - ' . $mov->origen->detalle) . '</td>';
+        $html .= '<td width="12%" class="left">' . htmlspecialchars($mov->destino->codigo . ' - ' . $mov->destino->detalle) . '</td>';
+        $html .= '<td width="12%" class="left">' . htmlspecialchars($mov->usuario->nombres_apellidos) . '</td>';
+        $html .= '<td width="14%" class="left">' . htmlspecialchars($mov->movimiento->descripcion) . '</td>';
+        $html .= '<td width="10%">' . htmlspecialchars($bien->cod_patrimonial ?: 'S/C') . '</td>';
+        $html .= '<td width="15%" class="left">' . htmlspecialchars($bien->denominacion) . '</td>';
+        $html .= '<td width="6%">' . htmlspecialchars($bien->marca) . '</td>';
+        $html .= '<td width="6%">' . htmlspecialchars($bien->estado_conservacion) . '</td>';
         $html .= '</tr>';
         $contador++;
     }
 }
 
-$html .= '
-    </tbody>
-</table>';
+$html .= '</tbody></table>';
 
 // ESCRIBIR HTML EN EL PDF
 $pdf->writeHTML($html, true, false, true, false, '');
 ob_clean();
-
-$pdf->Output("imprimir todos los movimientos.pdf", "I");
+$pdf->Output("reporte-movimientos-bienes.pdf", "I");
+?>

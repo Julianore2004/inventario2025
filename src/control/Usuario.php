@@ -26,14 +26,14 @@ if ($tipo == "validar_datos_reset_password") {
 
     $arr_Respuesta = array('status' => false, 'msg' => 'link Caducado');
     $datos_usuario = $objUsuario->buscarUsuarioById($id_email);
-    
+
     if ($datos_usuario && $datos_usuario->reset_password == 1 && password_verify($datos_usuario->token_password, $token_email)) {
         $arr_Respuesta = array('status' => true, 'msg' => 'OK');
     } else {
         // NUEVO: Limpiar sesión también cuando el link está expirado/inválido
         session_destroy();
         session_start();
-        
+
         $arr_Respuesta = array('status' => false, 'msg' => 'link Caducado');
     }
     echo json_encode($arr_Respuesta);
@@ -44,31 +44,33 @@ if ($tipo == "actualizar_password_reset") {
     $id_usuario = $_POST['id'];
     $nueva_password = $_POST['password'];
     $token_verificacion = $_POST['token'];
-    
+
     $arr_Respuesta = array('status' => false, 'msg' => 'Error al actualizar contraseña');
-    
+
     try {
         // Verificar que el usuario y token sean válidos
         $datos_usuario = $objUsuario->buscarUsuarioById($id_usuario);
-        
-        if ($datos_usuario && $datos_usuario->reset_password == 1 && 
-            password_verify($datos_usuario->token_password, $token_verificacion)) {
-            
+
+        if (
+            $datos_usuario && $datos_usuario->reset_password == 1 &&
+            password_verify($datos_usuario->token_password, $token_verificacion)
+        ) {
+
             // Actualizar contraseña y resetear campos de recuperación
             $resultado = $objUsuario->actualizarPasswordYResetearToken($id_usuario, $nueva_password);
-            
+
             if ($resultado) {
                 // Limpiar cualquier sesión activa
                 session_destroy();
                 session_start();
-                
+
                 $arr_Respuesta = array(
-                    'status' => true, 
+                    'status' => true,
                     'msg' => 'Contraseña actualizada correctamente'
                 );
             } else {
                 $arr_Respuesta = array(
-                    'status' => false, 
+                    'status' => false,
                     'msg' => 'Error al guardar en base de datos'
                 );
             }
@@ -76,19 +78,19 @@ if ($tipo == "actualizar_password_reset") {
             // NUEVO: Limpiar sesión también cuando el token es inválido
             session_destroy();
             session_start();
-            
+
             $arr_Respuesta = array(
-                'status' => false, 
+                'status' => false,
                 'msg' => 'Token inválido o expirado'
             );
         }
     } catch (Exception $e) {
         $arr_Respuesta = array(
-            'status' => false, 
+            'status' => false,
             'msg' => 'Error del servidor: ' . $e->getMessage()
         );
     }
-    
+
     echo json_encode($arr_Respuesta);
 }
 
@@ -119,8 +121,7 @@ if ($tipo == "listar_usuarios_ordenados_tabla") {
                 $arr_contenido[$i]->estado = $arr_Usuario[$i]->estado;
                 $opciones = '<button type="button" title="Editar" class="btn btn-primary waves-effect waves-light" data-toggle="modal" data-target=".modal_editar' . $arr_Usuario[$i]->id . '"><i class="fa fa-edit"></i></button>
                             <button class="btn btn-info" title="Resetear Contraseña" onclick="reset_password(' . $arr_Usuario[$i]->id . ')"><i class="fa fa-key"></i></button>
-                           
-                            <a href="'.BASE_URL. 'imprimir-usuarios/'. $arr_Usuario[$i]->id . '&sesion=' . $id_sesion . '&token=' . $token . '" class="btn btn-success waves-effect waves-light"><i class="fa fa-print"></i></a>';
+                           ';
                 $arr_contenido[$i]->options = $opciones;
             }
             $arr_Respuesta['total'] = count($busqueda_filtro);
@@ -229,41 +230,41 @@ if ($tipo == "reiniciar_password") {
 if ($tipo == "send_email_password") {
     $arr_Respuesta = array('status' => false, 'msg' => 'Error_Sesion');
     if ($objSesion->verificar_sesion_si_activa($id_sesion, $token)) {
-       
-$datos_sesion = $objSesion->buscarSesionLoginById($id_sesion);
-$datos_usuario = $objUsuario->buscarUsuarioById($datos_sesion->id_usuario);
-$llave = $objAdmin->generar_llave(30);
-$token = password_hash($llave, PASSWORD_DEFAULT);
-$update = $objUsuario->updateResetPassword($datos_sesion->id_usuario, $llave, 1)  ;
-if ($update) {
-    
-//Load Composer's autoloader (created by composer, not included with PHPMailer)
 
-//Create an instance; passing `true` enables exceptions
-$mail = new PHPMailer(true);
+        $datos_sesion = $objSesion->buscarSesionLoginById($id_sesion);
+        $datos_usuario = $objUsuario->buscarUsuarioById($datos_sesion->id_usuario);
+        $llave = $objAdmin->generar_llave(30);
+        $token = password_hash($llave, PASSWORD_DEFAULT);
+        $update = $objUsuario->updateResetPassword($datos_sesion->id_usuario, $llave, 1);
+        if ($update) {
 
-try {
-    //Server settings
-    $mail->SMTPDebug = SMTP::DEBUG_SERVER;                      //Enable verbose debug output
-    $mail->isSMTP();                                            //Send using SMTP
-    $mail->Host       = 'mail.importecsolutions.com';                     //Set the SMTP server to send through
-    $mail->SMTPAuth   = true;                                   //Enable SMTP authentication
-    $mail->Username   = 'julianore@importecsolutions.com';                     //SMTP username
-    $mail->Password   = 'dy4X,6;!i*G!';                               //SMTP password
-    $mail->SMTPSecure = PHPMailer::ENCRYPTION_SMTPS;            //Enable implicit TLS encryption
-    $mail->Port       = 465;                                    //TCP port to connect to; use 587 if you have set `SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS`
+            //Load Composer's autoloader (created by composer, not included with PHPMailer)
 
-    //Recipients
+            //Create an instance; passing `true` enables exceptions
+            $mail = new PHPMailer(true);
 
-    $mail->setFrom('julianore@importecsolutions.com', 'Cambio de Contraseña', 'importecsolutions.com');
-    $mail->addAddress($datos_usuario->correo, $datos_usuario->nombres_apellidos, 'Cambio de Contraseña');     //Add a recipient
+            try {
+                //Server settings
+                $mail->SMTPDebug = SMTP::DEBUG_SERVER;                      //Enable verbose debug output
+                $mail->isSMTP();                                            //Send using SMTP
+                $mail->Host = 'mail.importecsolutions.com';                     //Set the SMTP server to send through
+                $mail->SMTPAuth = true;                                   //Enable SMTP authentication
+                $mail->Username = 'julianore@importecsolutions.com';                     //SMTP username
+                $mail->Password = 'dy4X,6;!i*G!';                               //SMTP password
+                $mail->SMTPSecure = PHPMailer::ENCRYPTION_SMTPS;            //Enable implicit TLS encryption
+                $mail->Port = 465;                                    //TCP port to connect to; use 587 if you have set `SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS`
+
+                //Recipients
+
+                $mail->setFrom('julianore@importecsolutions.com', 'Cambio de Contraseña', 'importecsolutions.com');
+                $mail->addAddress($datos_usuario->correo, $datos_usuario->nombres_apellidos, 'Cambio de Contraseña');     //Add a recipient
 
 
-    //Content
-    $mail->isHTML(true);     
-    $mail->CharSet = 'UTF-8';                  
-    $mail->Subject = 'Cambio de Contraseña - Sistema de inventario'; //Set email format to HTML
-    $mail->Body = '<html lang="es">
+                //Content
+                $mail->isHTML(true);
+                $mail->CharSet = 'UTF-8';
+                $mail->Subject = 'Cambio de Contraseña - Sistema de inventario'; //Set email format to HTML
+                $mail->Body = '<html lang="es">
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -795,7 +796,7 @@ try {
     
                     <div class="message-box">
                         <p class="message-text">
-                            <strong style="color: #2d3748;">Hola '.$datos_usuario->nombres_apellidos.'</strong><br><br>
+                            <strong style="color: #2d3748;">Hola ' . $datos_usuario->nombres_apellidos . '</strong><br><br>
                             Hemos recibido una solicitud para <span style="color: #667eea; font-weight: bold;">cambiar la contraseña</span> de tu cuenta en TECHNOVA.
                             Por tu seguridad, necesitamos verificar que fuiste tú quien realizó esta solicitud.
                         </p>
@@ -803,7 +804,7 @@ try {
     
                     <!-- CTA Button -->
                     <div class="cta-section">
-                        <a href="'.BASE_URL.'reset-password/?data='.$datos_usuario->id.'&data2='.urlencode($token).'" class="cta-button">
+                        <a href="' . BASE_URL . 'reset-password/?data=' . $datos_usuario->id . '&data2=' . urlencode($token) . '" class="cta-button">
                             <span>🔒 Cambiar contraseña ahora</span>
                         </a>
                     </div>
@@ -915,17 +916,17 @@ try {
         </div>
     </body>
     </html>';
-    
 
-    $mail->send();
-    echo 'Message has been sent';
-} catch (Exception $e) {
-    echo "Message could not be sent. Mailer Error: {$mail->ErrorInfo}";
-}
-}else {
-    echo "fallo al actualizar";
-}
-//print_r($token);
+
+                $mail->send();
+                echo 'Message has been sent';
+            } catch (Exception $e) {
+                echo "Message could not be sent. Mailer Error: {$mail->ErrorInfo}";
+            }
+        } else {
+            echo "fallo al actualizar";
+        }
+        //print_r($token);
 
     }
 
@@ -934,17 +935,17 @@ try {
 
 if ($tipo == "listar_todos_usuarios") {
     $arr_Respuesta = array('status' => false, 'msg' => 'Error_Sesion');
-    
+
     // Manejar parámetros de sesión tanto por GET como por POST
     $id_sesion_param = isset($_GET['sesion']) ? $_GET['sesion'] : $id_sesion;
     $token_param = isset($_GET['token']) ? $_GET['token'] : $token;
-    
+
     if ($objSesion->verificar_sesion_si_activa($id_sesion_param, $token_param)) {
         // Respuesta
         $arr_Respuesta = array('status' => false, 'data' => '');
         $arr_Usuario = $objUsuario->listarTodosLosUsuarios();
         $arr_contenido = [];
-        
+
         if (!empty($arr_Usuario)) {
             // Recorrer usuarios y preparar datos para el PDF
             for ($i = 0; $i < count($arr_Usuario); $i++) {
@@ -956,7 +957,7 @@ if ($tipo == "listar_todos_usuarios") {
                 $arr_contenido[$i]->telefono = $arr_Usuario[$i]->telefono;
                 $arr_contenido[$i]->estado = $arr_Usuario[$i]->estado;
             }
-            
+
             $arr_Respuesta['status'] = true;
             $arr_Respuesta['data'] = $arr_contenido;
         }

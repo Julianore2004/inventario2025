@@ -1,5 +1,4 @@
 <?php
-// Evitar múltiples session_start()
 if (session_status() == PHP_SESSION_NONE) {
     session_start();
 }
@@ -22,7 +21,6 @@ if ($err) {
     exit;
 }
 
-// Limpiar la respuesta de warnings y notices de PHP
 $json_start = strpos($response, '{');
 if ($json_start !== false) {
     $clean_response = substr($response, $json_start);
@@ -33,7 +31,6 @@ if ($json_start !== false) {
 
 $data = json_decode($clean_response);
 
-// Verificar si la decodificación JSON fue exitosa
 if (json_last_error() !== JSON_ERROR_NONE) {
     echo "Error al decodificar JSON: " . json_last_error_msg();
     exit;
@@ -47,7 +44,7 @@ if (!$data || !isset($data->status) || !$data->status) {
     exit;
 }
 
-// FECHA ACTUAL
+// FECHA
 $meses = [1=>'enero',2=>'febrero',3=>'marzo',4=>'abril',5=>'mayo',6=>'junio',7=>'julio',8=>'agosto',9=>'septiembre',10=>'octubre',11=>'noviembre',12=>'diciembre'];
 $fecha = new DateTime();
 $dia = $fecha->format('d');
@@ -79,41 +76,38 @@ $pdf = new MYPDF();
 $pdf->SetMargins(10, 40, 10);
 $pdf->SetHeaderMargin(5);
 $pdf->SetAutoPageBreak(true, 15);
-$pdf->SetFont('helvetica', '', 9);
-$pdf->AddPage('P'); // Orientación vertical para usuarios
+$pdf->SetFont('helvetica', '', 8);
+$pdf->AddPage('P');
 
-// TÍTULO Y FECHA
-$html = "<h2 style='text-align:center;'>LISTADO DE USUARIOS DEL SISTEMA</h2>";
-$html .= "<p style='text-align:right;'>Ayacucho, $dia de $mes del $anio</p>";
+// TÍTULO
+$html = "
+<h2 style='text-align:center;font-size:13pt;'>LISTADO DE USUARIOS DEL SISTEMA</h2>
+<p style='text-align:right;font-size:9pt;'>Ayacucho, $dia de $mes del $anio</p>";
 
-// TABLA PROFESIONAL
 $html .= '
 <style>
 th {
-    background-color: #f2f2f2;
+    background-color: #e6f0fa;
     font-weight: bold;
-    border: 1px solid #000;
+    border: 1px solid #ccc;
     text-align: center;
     vertical-align: middle;
-    font-size: 8px;
+    font-size: 7pt;
     padding: 3px;
 }
 td {
-    border: 1px solid #000;
-    font-size: 8px;
+    border: 1px solid #ddd;
+    font-size: 7pt;
     padding: 3px;
     vertical-align: middle;
     text-align: center;
 }
-.left-align {
+td.left {
     text-align: left;
-}
-.center-align {
-    text-align: center;
 }
 </style>
 
-<table cellspacing="0" cellpadding="3">
+<table cellspacing="0" cellpadding="2">
     <thead>
         <tr>
             <th width="8%">#</th>
@@ -125,66 +119,44 @@ td {
     </thead>
     <tbody>';
 
-// LLENADO DE FILAS
+// LLENADO
 $contador = 1;
-foreach ($data->data as $usuario) {
-    // Determinar el estado en texto
-    $estado_texto = '';
-    $estado_color = '';
-    if ($usuario->estado == '1') {
-        $estado_texto = 'ACTIVO';
-        $estado_color = 'color: green; font-weight: bold;';
-    } elseif ($usuario->estado == '0') {
-        $estado_texto = 'INACTIVO';
-        $estado_color = 'color: red; font-weight: bold;';
-    } else {
-        $estado_texto = 'N/D';
-        $estado_color = 'color: gray;';
-    }
-
-    $html .= '<tr>';
-    $html .= '<td width="8%">' . $contador . '</td>';
-    $html .= '<td width="15%">' . htmlspecialchars($usuario->dni ?: 'S/DNI') . '</td>';
-    $html .= '<td width="35%" class="left-align">' . htmlspecialchars($usuario->nombres_apellidos ?: 'Sin nombre') . '</td>';
-    $html .= '<td width="27%" class="left-align">' . htmlspecialchars($usuario->correo ?: 'Sin correo') . '</td>';
-    $html .= '<td width="15%" style="' . $estado_color . '">' . $estado_texto . '</td>';
-    $html .= '</tr>';
-    $contador++;
-}
-
-$html .= '
-    </tbody>
-</table>';
-
-// AGREGAR RESUMEN
-$total_usuarios = count($data->data);
 $usuarios_activos = 0;
 $usuarios_inactivos = 0;
 
 foreach ($data->data as $usuario) {
     if ($usuario->estado == '1') {
+        $estado_texto = '<span style="color:green;"><strong>ACTIVO</strong></span>';
         $usuarios_activos++;
     } elseif ($usuario->estado == '0') {
+        $estado_texto = '<span style="color:red;"><strong>INACTIVO</strong></span>';
         $usuarios_inactivos++;
+    } else {
+        $estado_texto = '<span style="color:gray;">N/D</span>';
     }
+
+    $html .= '<tr>';
+    $html .= '<td width="8%">' . $contador . '</td>';
+    $html .= '<td width="15%">' . htmlspecialchars($usuario->dni ?: 'S/DNI') . '</td>';
+    $html .= '<td width="35%" class="left">' . htmlspecialchars($usuario->nombres_apellidos ?: 'Sin nombre') . '</td>';
+    $html .= '<td width="27%" class="left">' . htmlspecialchars($usuario->correo ?: 'Sin correo') . '</td>';
+    $html .= '<td width="15%">' . $estado_texto . '</td>';
+    $html .= '</tr>';
+    $contador++;
 }
 
-$html .= "<br><br>";
-$html .= "<table style='width:100%;'>";
-$html .= "<tr>";
-$html .= "<td style='text-align:right; padding: 5px;'><strong>Total de Usuarios: $total_usuarios</strong></td>";
-$html .= "</tr>";
-$html .= "<tr>";
-$html .= "<td style='text-align:right; padding: 2px; color: green;'><strong>Usuarios Activos: $usuarios_activos</strong></td>";
-$html .= "</tr>";
-$html .= "<tr>";
-$html .= "<td style='text-align:right; padding: 2px; color: red;'><strong>Usuarios Inactivos: $usuarios_inactivos</strong></td>";
-$html .= "</tr>";
-$html .= "</table>";
+$html .= '</tbody></table>';
 
-// ESCRIBIR HTML EN EL PDF
+// RESUMEN FINAL
+$total_usuarios = count($data->data);
+$html .= "<br><br><table style='width:100%; font-size:8pt;'>
+    <tr><td align='right'><strong>Total de Usuarios:</strong> $total_usuarios</td></tr>
+    <tr><td align='right' style='color:green;'><strong>Usuarios Activos:</strong> $usuarios_activos</td></tr>
+    <tr><td align='right' style='color:red;'><strong>Usuarios Inactivos:</strong> $usuarios_inactivos</td></tr>
+</table>";
+
+// MOSTRAR PDF
 $pdf->writeHTML($html, true, false, true, false, '');
 ob_clean();
-
 $pdf->Output("listado-usuarios-sistema.pdf", "I");
 ?>

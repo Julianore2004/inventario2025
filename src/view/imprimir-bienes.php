@@ -1,5 +1,4 @@
 <?php
-// Evitar múltiples session_start()
 if (session_status() == PHP_SESSION_NONE) {
     session_start();
 }
@@ -22,7 +21,6 @@ if ($err) {
     exit;
 }
 
-// Limpiar la respuesta de warnings y notices de PHP
 $json_start = strpos($response, '{');
 if ($json_start !== false) {
     $clean_response = substr($response, $json_start);
@@ -33,7 +31,6 @@ if ($json_start !== false) {
 
 $data = json_decode($clean_response);
 
-// Verificar si la decodificación JSON fue exitosa
 if (json_last_error() !== JSON_ERROR_NONE) {
     echo "Error al decodificar JSON: " . json_last_error_msg();
     exit;
@@ -47,7 +44,7 @@ if (!$data || !isset($data->status) || !$data->status) {
     exit;
 }
 
-// FECHA ACTUAL
+// FECHA
 $meses = [1=>'enero',2=>'febrero',3=>'marzo',4=>'abril',5=>'mayo',6=>'junio',7=>'julio',8=>'agosto',9=>'septiembre',10=>'octubre',11=>'noviembre',12=>'diciembre'];
 $fecha = new DateTime();
 $dia = $fecha->format('d');
@@ -79,30 +76,35 @@ $pdf = new MYPDF();
 $pdf->SetMargins(10, 40, 10);
 $pdf->SetHeaderMargin(5);
 $pdf->SetAutoPageBreak(true, 15);
-$pdf->SetFont('helvetica', '', 9);
-$pdf->AddPage('L'); // Orientación horizontal para más columnas
+$pdf->SetFont('helvetica', '', 8);
+$pdf->AddPage('L');
 
-// TÍTULO Y FECHA
-$html = "<h2 style='text-align:center;'>INVENTARIO GENERAL DE BIENES PATRIMONIALES</h2>";
-$html .= "<p style='text-align:right;'>Ayacucho, $dia de $mes del $anio</p>";
+// TÍTULO
+$html = "
+<h2 style='text-align:center;font-size:13pt;'>INVENTARIO GENERAL DE BIENES PATRIMONIALES</h2>
+<p style='text-align:right;font-size:9pt;'>Ayacucho, $dia de $mes del $anio</p>";
 
-// TABLA PROFESIONAL
+// ESTILOS MODERNOS
 $html .= '
 <style>
 th {
-    background-color: #f2f2f2;
+    background-color: #e6f0fa;
     font-weight: bold;
-    border: 1px solid #000;
+    border: 1px solid #ccc;
     text-align: center;
     vertical-align: middle;
-    font-size: 7px;
+    font-size: 7pt;
+    padding: 3px;
 }
 td {
-    border: 1px solid #000;
-    font-size: 7px;
-    padding: 2px;
+    border: 1px solid #ddd;
+    font-size: 7pt;
+    padding: 3px;
     vertical-align: middle;
     text-align: center;
+}
+td.left {
+    text-align: left;
 }
 </style>
 
@@ -126,34 +128,31 @@ td {
     </thead>
     <tbody>';
 
-// LLENADO DE FILAS
+// LLENADO
 $contador = 1;
 foreach ($data->data as $bien) {
     $html .= '<tr>';
     $html .= '<td width="3%">' . $contador . '</td>';
-    $html .= '<td width="8%">' . ($bien->cod_patrimonial ?: 'S/C') . '</td>';
-    $html .= '<td width="15%" style="text-align:left;">' . $bien->denominacion . '</td>';
-    $html .= '<td width="8%">' . $bien->marca . '</td>';
-    $html .= '<td width="8%">' . $bien->modelo . '</td>';
-    $html .= '<td width="8%">' . $bien->tipo . '</td>';
-    $html .= '<td width="6%">' . $bien->color . '</td>';
-    $html .= '<td width="8%">' . $bien->serie . '</td>';
-    $html .= '<td width="8%">' . $bien->dimensiones . '</td>';
+    $html .= '<td width="8%">' . htmlspecialchars($bien->cod_patrimonial ?: 'S/C') . '</td>';
+    $html .= '<td width="15%" class="left">' . htmlspecialchars($bien->denominacion) . '</td>';
+    $html .= '<td width="8%">' . htmlspecialchars($bien->marca) . '</td>';
+    $html .= '<td width="8%">' . htmlspecialchars($bien->modelo) . '</td>';
+    $html .= '<td width="8%">' . htmlspecialchars($bien->tipo) . '</td>';
+    $html .= '<td width="6%">' . htmlspecialchars($bien->color) . '</td>';
+    $html .= '<td width="8%">' . htmlspecialchars($bien->serie) . '</td>';
+    $html .= '<td width="8%">' . htmlspecialchars($bien->dimensiones) . '</td>';
     $html .= '<td width="6%">S/. ' . number_format($bien->valor, 2) . '</td>';
-    $html .= '<td width="6%">' . $bien->situacion . '</td>';
-    $html .= '<td width="8%">' . $bien->estado_conservacion . '</td>';
-    $html .= '<td width="8%" style="text-align:left;">' . $bien->ambiente_codigo . ' - ' . $bien->ambiente_detalle . '</td>';
+    $html .= '<td width="6%">' . htmlspecialchars($bien->situacion) . '</td>';
+    $html .= '<td width="8%">' . htmlspecialchars($bien->estado_conservacion) . '</td>';
+    $html .= '<td width="8%" class="left">' . htmlspecialchars($bien->ambiente_codigo . ' - ' . $bien->ambiente_detalle) . '</td>';
     $html .= '</tr>';
     $contador++;
 }
 
-$html .= '
-    </tbody>
-</table>';
+$html .= '</tbody></table>';
 
-// ESCRIBIR HTML EN EL PDF
+// GENERAR PDF
 $pdf->writeHTML($html, true, false, true, false, '');
 ob_clean();
-
 $pdf->Output("inventario-bienes-general.pdf", "I");
 ?>

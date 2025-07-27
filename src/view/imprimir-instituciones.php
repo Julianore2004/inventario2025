@@ -1,5 +1,7 @@
 <?php
-
+if (session_status() == PHP_SESSION_NONE) {
+    session_start();
+}
 require_once('./vendor/tecnickcom/tcpdf/tcpdf.php');
 
 // CONSULTA A LA API
@@ -19,7 +21,6 @@ if ($err) {
     exit;
 }
 
-// Limpiar la respuesta de warnings y notices de PHP
 $json_start = strpos($response, '{');
 if ($json_start !== false) {
     $clean_response = substr($response, $json_start);
@@ -29,8 +30,6 @@ if ($json_start !== false) {
 }
 
 $data = json_decode($clean_response);
-
-// Verificar si la decodificación JSON fue exitosa
 if (json_last_error() !== JSON_ERROR_NONE) {
     echo "Error al decodificar JSON: " . json_last_error_msg();
     exit;
@@ -76,74 +75,71 @@ $pdf = new MYPDF();
 $pdf->SetMargins(10, 40, 10);
 $pdf->SetHeaderMargin(5);
 $pdf->SetAutoPageBreak(true, 15);
-$pdf->SetFont('helvetica', '', 9);
-$pdf->AddPage('P'); // Orientación vertical para instituciones
+$pdf->SetFont('helvetica', '', 8);
+$pdf->AddPage('P');
 
 // TÍTULO Y FECHA
-$html = "<h2 style='text-align:center;'>LISTADO DE INSTITUCIONES EDUCATIVAS</h2>";
-$html .= "<p style='text-align:right;'>Ayacucho, $dia de $mes del $anio</p>";
+$html = "
+<h2 style='text-align:center;font-size:13pt;'>LISTADO DE INSTITUCIONES EDUCATIVAS</h2>
+<p style='text-align:right;font-size:9pt;'>Ayacucho, $dia de $mes del $anio</p>";
 
-// TABLA PROFESIONAL
+// ESTILOS MODERNOS
 $html .= '
 <style>
 th {
-    background-color: #f2f2f2;
+    background-color: #e6f0fa;
     font-weight: bold;
-    border: 1px solid #000;
+    border: 1px solid #ccc;
     text-align: center;
     vertical-align: middle;
-    font-size: 8px;
+    font-size: 7pt;
     padding: 3px;
 }
 td {
-    border: 1px solid #000;
-    font-size: 8px;
+    border: 1px solid #ddd;
+    font-size: 7pt;
     padding: 3px;
     vertical-align: middle;
     text-align: center;
 }
-.left-align {
+td.left {
     text-align: left;
 }
 </style>
 
-<table cellspacing="0" cellpadding="3">
+<table cellspacing="0" cellpadding="2">
     <thead>
         <tr>
             <th width="8%">#</th>
-            <th width="15%">Código Modular</th>
-            <th width="18%">RUC</th>
-            <th width="45%">Nombre de la Institución</th>
-            <th width="14%">Beneficiario</th>
+            <th width="18%">Código Modular</th>
+            <th width="22%">RUC</th>
+            <th width="40%">Nombre de la Institución</th>
+            <th width="12%">Beneficiario</th>
         </tr>
     </thead>
     <tbody>';
 
-// LLENADO DE FILAS
+// FILAS
 $contador = 1;
 foreach ($data->data as $institucion) {
     $html .= '<tr>';
     $html .= '<td width="8%">' . $contador . '</td>';
-    $html .= '<td width="15%">' . ($institucion->cod_modular ?: 'S/C') . '</td>';
-    $html .= '<td width="18%">' . ($institucion->ruc ?: 'S/RUC') . '</td>';
-    $html .= '<td width="45%" class="left-align">' . htmlspecialchars($institucion->nombre) . '</td>';
-    $html .= '<td width="14%">' . (isset($institucion->nombres_apellidos) ? htmlspecialchars($institucion->nombres_apellidos) : 'N/A') . '</td>';
+    $html .= '<td width="18%">' . ($institucion->cod_modular ?: 'S/C') . '</td>';
+    $html .= '<td width="22%">' . ($institucion->ruc ?: 'S/RUC') . '</td>';
+    $html .= '<td width="40%" class="left">' . htmlspecialchars($institucion->nombre) . '</td>';
+    $html .= '<td width="12%">' . (isset($institucion->nombres_apellidos) ? htmlspecialchars($institucion->nombres_apellidos) : 'N/A') . '</td>';
     $html .= '</tr>';
     $contador++;
 }
 
-$html .= '
-    </tbody>
-</table>';
+$html .= '</tbody></table>';
 
-// AGREGAR RESUMEN
+// TOTAL
 $total_instituciones = count($data->data);
-$html .= "<br><br>";
-$html .= "<p style='text-align:right;'><strong>Total de Instituciones: $total_instituciones</strong></p>";
+$html .= "<br><p style='text-align:right;font-size:9pt;'><strong>Total de Instituciones: $total_instituciones</strong></p>";
 
-// ESCRIBIR HTML EN EL PDF
+// SALIDA
 $pdf->writeHTML($html, true, false, true, false, '');
 ob_clean();
-
 $pdf->Output("listado-instituciones.pdf", "I");
 ?>

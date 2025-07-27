@@ -19,7 +19,6 @@ if ($err) {
     exit;
 }
 
-// Limpiar la respuesta de warnings y notices de PHP
 $json_start = strpos($response, '{');
 if ($json_start !== false) {
     $clean_response = substr($response, $json_start);
@@ -30,7 +29,6 @@ if ($json_start !== false) {
 
 $data = json_decode($clean_response);
 
-// Verificar si la decodificación JSON fue exitosa
 if (json_last_error() !== JSON_ERROR_NONE) {
     echo "Error al decodificar JSON: " . json_last_error_msg();
     exit;
@@ -57,75 +55,79 @@ class MYPDF extends TCPDF {
         $logo_izq = 'https://oportunidadeslaborales.uladech.edu.pe/wp-content/uploads/2021/09/GOBIERNO-REGIONAL-DE-AYACUCHO.jpg';
         $logo_der = 'https://gra.regionayacucho.gob.pe/_next/image?url=%2Flogos%2Fdrea.png&w=640&q=75';
         $html = '
-        <table style="width:100%;border-bottom:2px solid #333;">
+        <table style="width:100%;border-bottom:1px solid #666;">
             <tr>
-                <td width="15%" align="center"><img src="' . $logo_izq . '" width="60"/></td>
+                <td width="15%" align="center"><img src="' . $logo_izq . '" width="50"/></td>
                 <td width="70%" align="center">
-                    <div style="font-size:10px;"><strong>GOBIERNO REGIONAL DE AYACUCHO</strong></div>
-                    <div style="font-size:12px;"><strong>DIRECCIÓN REGIONAL DE EDUCACIÓN DE AYACUCHO</strong></div>
-                    <div style="font-size:8px;">DIRECCIÓN DE ADMINISTRACIÓN</div>
+                    <div style="font-size:11px;font-weight:bold;">GOBIERNO REGIONAL DE AYACUCHO</div>
+                    <div style="font-size:13px;font-weight:bold;">DIRECCIÓN REGIONAL DE EDUCACIÓN DE AYACUCHO</div>
+                    <div style="font-size:9px;">Dirección de Administración</div>
                 </td>
-                <td width="15%" align="center"><img src="' . $logo_der . '" width="60"/></td>
+                <td width="15%" align="center"><img src="' . $logo_der . '" width="50"/></td>
             </tr>
-        </table>';
+        </table><br>';
         $this->writeHTML($html, true, false, true, false, '');
     }
 }
 
 $pdf = new MYPDF();
-$pdf->SetMargins(10, 40, 10);
-$pdf->SetHeaderMargin(5);
-$pdf->SetAutoPageBreak(true, 15);
+$pdf->SetMargins(12, 40, 12);
+$pdf->SetHeaderMargin(8);
+$pdf->SetAutoPageBreak(true, 20);
 $pdf->SetFont('helvetica', '', 9);
-$pdf->AddPage('P'); // Orientación vertical para ambientes
+$pdf->AddPage('P');
 
 // TÍTULO Y FECHA
-$html = "<h2 style='text-align:center;'>LISTADO DE AMBIENTES DE INSTITUCIONES EDUCATIVAS</h2>";
-$html .= "<p style='text-align:right;'>Ayacucho, $dia de $mes del $anio</p>";
+$html = "
+<h2 style='text-align:center;font-size:14pt;'>LISTADO DE AMBIENTES DE INSTITUCIONES EDUCATIVAS</h2>
+<p style='text-align:right;font-size:9pt;'>Ayacucho, $dia de $mes del $anio</p>
+";
 
-// TABLA PROFESIONAL
+// ESTILOS + TABLA CON WIDTH EN `<td>`
 $html .= '
 <style>
 th {
-    background-color: #f2f2f2;
+    background-color: #e6f0fa;
+    color: #000;
     font-weight: bold;
-    border: 1px solid #000;
+    border: 1px solid #ccc;
+    font-size: 8.5pt;
+    padding: 4px;
     text-align: center;
-    vertical-align: middle;
-    font-size: 8px;
-    padding: 3px;
 }
 td {
-    border: 1px solid #000;
-    font-size: 7px;
-    padding: 2px;
+    border: 1px solid #ddd;
+    font-size: 8pt;
+    padding: 3px;
     vertical-align: middle;
-    text-align: center;
 }
-.left-align {
+td.left-align {
     text-align: left;
+}
+td.center {
+    text-align: center;
 }
 </style>
 
-<table cellspacing="0" cellpadding="2">
+<table cellspacing="0" cellpadding="3" width="100%">
     <thead>
         <tr>
-            <th width="8%">#</th>
-            <th width="30%">Institución Educativa</th>
-            <th width="12%">Código</th>
-            <th width="50%">Detalle del Ambiente</th>
+            <th width="6%">N°</th>
+            <th width="34%">Institución Educativa</th>
+            <th width="14%">Código</th>
+            <th width="46%">Detalle del Ambiente</th>
         </tr>
     </thead>
     <tbody>';
 
-// LLENADO DE FILAS
+// LLENAR FILAS
 $contador = 1;
 foreach ($data->data as $ambiente) {
     $html .= '<tr>';
-    $html .= '<td width="8%">' . $contador . '</td>';
-    $html .= '<td width="30%" class="left-align">' . htmlspecialchars($ambiente->institucion_nombre ?: 'Sin institución') . '</td>';
-    $html .= '<td width="12%">' . ($ambiente->codigo ?: 'S/C') . '</td>';
-    $html .= '<td width="50%" class="left-align">' . htmlspecialchars($ambiente->detalle ?: 'Sin detalle') . '</td>';
+    $html .= '<td width="6%" class="center">' . $contador . '</td>';
+    $html .= '<td width="34%"  class="left-align">' . htmlspecialchars($ambiente->institucion_nombre ?: 'Sin institución') . '</td>';
+    $html .= '<td width="14%" class="center">' . ($ambiente->codigo ?: 'S/C') . '</td>';
+    $html .= '<td width="46%" class="left-align">' . htmlspecialchars($ambiente->detalle ?: 'Sin detalle') . '</td>';
     $html .= '</tr>';
     $contador++;
 }
@@ -134,14 +136,12 @@ $html .= '
     </tbody>
 </table>';
 
-// AGREGAR RESUMEN
+// RESUMEN FINAL
 $total_ambientes = count($data->data);
-$html .= "<br><br>";
-$html .= "<p style='text-align:right;'><strong>Total de Ambientes: $total_ambientes</strong></p>";
+$html .= "<br><p style='text-align:right;font-size:9pt;'><strong>Total de Ambientes: $total_ambientes</strong></p>";
 
-// ESCRIBIR HTML EN EL PDF
+// ESCRIBIR AL PDF
 $pdf->writeHTML($html, true, false, true, false, '');
 ob_clean();
-
 $pdf->Output("listado-ambientes-educativos.pdf", "I");
 ?>
